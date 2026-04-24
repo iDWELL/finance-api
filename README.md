@@ -78,7 +78,7 @@ https://www.youtube.com/watch?v=L5bzHzqUn9M
 ### Basic GraphQL usage
 
 You can find all GraphQL query types in the generated documentation:
-<https://domonda.github.io/api/doc/schema/query.doc.html>
+<https://idwell.github.io/finance-api/doc/schema/query.doc.html>
 
 Referenced fields always have an extra field for querying the actual data behind them.
 
@@ -527,7 +527,7 @@ CLEARING_ACCOUNT
 `bookingCategory` is a generic string that may be empty or not provided at all.
 
 Document categories can be queried via GraphQL:
-<https://domonda.github.io/api/doc/schema/documentcategory.doc.html>
+<https://idwell.github.io/finance-api/doc/schema/documentcategory.doc.html>
 
 Example GraphQL query:
 
@@ -761,7 +761,7 @@ ef059fa4-7288-4b77-8017-adce142e29a8
 The document ID will be a new v4 random UUID, except if a user-defined `uuid` that does not exist yet in iDWELL is passed as form field. 
 
 This UUID can be used in the GraphQL document API:
-<https://domonda.github.io/api/doc/schema/document.doc.html>
+<https://idwell.github.io/finance-api/doc/schema/document.doc.html>
 
 ### File upload HTTP response status codes
 
