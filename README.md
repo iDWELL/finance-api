@@ -1,8 +1,8 @@
-![image](img/domonda_logo_schriftzug.png)
+<img src="img/idwell_logo.svg" height="75" alt="iDWELL Finance">
 
-# DOMONDA API
+# iDWELL Finance
 
-The Domonda API is a comprehensive platform for managing financial documents, invoices, and master data. It provides two complementary interfaces:
+The iDWELL Finance API is a comprehensive platform for managing financial documents, invoices, and master data. It provides two complementary interfaces:
 
 [**GraphQL**](#graphql-api) is the main API for querying data and changing single data items with mutations. Use this for reading documents, invoices, partners, and other entity data, as well as for making individual changes.
 
@@ -14,7 +14,7 @@ The Domonda API is a comprehensive platform for managing financial documents, in
 
 [**Authentication**](#authentication) is identical for both GraphQL and REST APIs and uses Bearer token authentication with API keys that provide access to a specific client company's data.
 
-[**Go SDK**](#go-sdk) is available at [github.com/domonda/api/golang/domonda](https://pkg.go.dev/github.com/domonda/api/golang/domonda) for type-safe API interactions with client-side validation.
+[**Go SDK**](#go-sdk) is available at [github.com/iDWELL/finance-api/golang/finance](https://pkg.go.dev/github.com/iDWELL/finance-api/golang/finance) for type-safe API interactions with client-side validation.
 
 ## Table of Contents
 
@@ -39,23 +39,23 @@ The Domonda API is a comprehensive platform for managing financial documents, in
 Authentication for [GraphQL](#graphql-api) and [REST](#rest-api) requests
 is implemented via `Bearer` token that holds an API key specific to a client-company. 
 
-In the following examples, replace `${DOMONDA_API_KEY}` with your actual API key.
+In the following examples, replace `${IDWELL_API_KEY}` with your actual API key.
 
 ```http
-POST https://domonda.app/api/public/graphql
+POST https://idwell.ai/api/public/graphql
 
-Authorization: Bearer ${DOMONDA_API_KEY}
+Authorization: Bearer ${IDWELL_API_KEY}
 ```
 
 Minimal example:
 
 ```sh
 curl -X POST \
-  -H "Authorization: Bearer ${DOMONDA_API_KEY}" \
+  -H "Authorization: Bearer ${IDWELL_API_KEY}" \
   -H "Content-Type: application/graphql" \
   --data "{ allDocuments{ totalCount } }" \
   -o - \
-  https://domonda.app/api/public/graphql
+  https://idwell.ai/api/public/graphql
 ```
 
 
@@ -63,10 +63,10 @@ curl -X POST \
 
 ### Graph*i*QL interactive access and documentation
 
-The URL for the **Domonda API Graph*i*QL tool** is:
-https://domonda.app/api/public/graphiql
+The URL for the **iDWELL Finance API Graph*i*QL tool** is:
+https://idwell.ai/api/public/graphiql
 
-You can provide an authentication token to authenticate access to your Domonda data.
+You can provide an authentication token to authenticate access to your iDWELL data.
 Without a valid token, demo data is provided by the API.
 
 Alternatively, you can use the desktop client Altair (<https://altair.sirmuel.design/>).
@@ -360,7 +360,7 @@ field `userByImportedBy`, which gets you the associated user.
 1. Use script:
 
    ```js
-   const DOMONDA_API = "https://domonda.app/api/public/graphql";
+   const IDWELL_API = "https://idwell.ai/api/public/graphql";
    const API_TOKEN = ""; // your personal access token
 
    function lastMonthImportedInvoices() {
@@ -370,7 +370,7 @@ field `userByImportedBy`, which gets you the associated user.
        headers: { Authorization: "Bearer " + API_TOKEN },
        contentType: "application/json",
        payload: JSON.stringify({
-         // Use our interactive API explorer here https://domonda.app/api/public/graphiql to get the most out of your data.
+         // Use our interactive API explorer here https://idwell.ai/api/public/graphiql to get the most out of your data.
          query: `query lastMonthImportedInvoices($from: Date!, $until: Date!) {
             filterDocuments(dateFilterType: IMPORT_DATE, fromDate: $from, untilDate: $until) {
               nodes {
@@ -391,7 +391,7 @@ field `userByImportedBy`, which gets you the associated user.
        }),
      };
 
-     var response = UrlFetchApp.fetch(DOMONDA_API, options);
+     var response = UrlFetchApp.fetch(IDWELL_API, options);
 
      var json = JSON.parse(response.getContentText());
      var invoices = json.data.filterDocuments.nodes.map(
@@ -456,10 +456,10 @@ To request the PDF file for the document with the ID `00000000-0000-0000-0000-00
 
 ```sh
 curl \
-  -H "Authorization: Bearer ${DOMONDA_API_KEY}" \
+  -H "Authorization: Bearer ${IDWELL_API_KEY}" \
   --fail \
   --remote-name \
-  https://domonda.app/api/public/document/00000000-0000-0000-0000-000000000000.pdf
+  https://idwell.ai/api/public/document/00000000-0000-0000-0000-000000000000.pdf
 ```
 
 To add an audit trail to the PDF or request only the audit trail,
@@ -479,13 +479,13 @@ use the query parameter `auditTrailLang` with a language code.
 Example URL to download only the audit trail in English:
 
 ```
-https://domonda.app/api/public/document/00000000-0000-0000-0000-000000000000.pdf?auditTrail=only&auditTrailLang=en
+https://idwell.ai/api/public/document/00000000-0000-0000-0000-000000000000.pdf?auditTrail=only&auditTrailLang=en
 ```
 
 ### File uploads
 
 File uploads are not using GraphQL, but Multipart MIME HTTP POST requests to the following URL:
-`https://domonda.app/api/public/upload`
+`https://idwell.ai/api/public/upload`
 
 Note that basic document processing like creating or fixing a PDF file
 and rendering page images is done synchronously and
@@ -587,14 +587,14 @@ as a new document.
 ### File upload with Go SDK
 
 See Go SDK with the package
-[github.com/domonda/api/golang/domonda](https://pkg.go.dev/github.com/domonda/api/golang/domonda).
+[github.com/iDWELL/finance-api/golang/finance](https://pkg.go.dev/github.com/iDWELL/finance-api/golang/finance).
 
 Using this Go package to make API requests has the benefit of basic
 client side validation of the data before sending the request
 and the client package will always be kept up to date
 with the API server implementation.
 
-Go function: https://pkg.go.dev/github.com/domonda/api/golang/domonda#UploadDocument
+Go function: https://pkg.go.dev/github.com/iDWELL/finance-api/golang/finance#UploadDocument
 
 ### Upload structured invoice data as JSON
 
@@ -691,19 +691,19 @@ Example:
 ```
 
 If `confirmedBy` is set to a non-empty string, then all values from the JSON
-will be marked as confirmed and not overwritten by values from Domonda's automated invoice data extraction.
-Upload API confirmations can be overwritten by users of the domonda app if they have sufficient rights.
+will be marked as confirmed and not overwritten by values from iDWELL's automated invoice data extraction.
+Upload API confirmations can be overwritten by users of the iDWELL app if they have sufficient rights.
 
 The optional form field `ebInterface` contains an XML file in the ebInterface 5.0 format as specified at:
 <https://www.wko.at/service/netzwerke/ebinterface-aktuelle-version-xml-rechnungsstandard.html>
 
 Reference XML files can be created online at: <https://formular.ebinterface.at/>
 
-Example using the CURL command-line tool with a `documentCategory` ID and multiple `tag` fields and a user-defined `uuid` for the document that must not exist in domonda yet:
+Example using the CURL command-line tool with a `documentCategory` ID and multiple `tag` fields and a user-defined `uuid` for the document that must not exist in iDWELL yet:
 
 ```sh
 curl -X POST \
-  -H "Authorization: Bearer ${DOMONDA_API_KEY}" \
+  -H "Authorization: Bearer ${IDWELL_API_KEY}" \
   -H "Content-Type: multipart/form-data" \
   -F "uuid=01505320-42f7-4cff-a930-4669eeb5e999"
   -F "documentCategory=fe110406-e38d-416a-a8d8-29f0a20f1c8d" \
@@ -713,14 +713,14 @@ curl -X POST \
   -F "tag=TagB" \
   -F "allowDuplicateDeleted=true" \
   -o - \
-  https://domonda.app/api/public/upload
+  https://idwell.ai/api/public/upload
 ```
 
 Example with `documentType`, `bookingType`, `bookingCategory`, and `waitForExtraction`:
 
 ```sh
 curl -X POST \
-  -H "Authorization: Bearer ${DOMONDA_API_KEY}" \
+  -H "Authorization: Bearer ${IDWELL_API_KEY}" \
   -H "Content-Type: multipart/form-data" \
   -F "documentType=INCOMING_INVOICE" \
   -F "bookingType=CLEARING_ACCOUNT" \
@@ -730,7 +730,7 @@ curl -X POST \
   -F "allowDuplicateDeleted=false" \
   -F "waitForExtraction=true" \
   -o - \
-  https://domonda.app/api/public/upload
+  https://idwell.ai/api/public/upload
 ```
 
 Example with just `documentType` (`bookingType` and `bookingCategory` would be null in the GraphQL query for the document category)
@@ -738,7 +738,7 @@ and `waitForExtraction`:
 
 ```sh
 curl -X POST \
-  -H "Authorization: Bearer ${DOMONDA_API_KEY}" \
+  -H "Authorization: Bearer ${IDWELL_API_KEY}" \
   -H "Content-Type: multipart/form-data" \
   -F "documentType=OUTGOING_INVOICE" \
   -F "document=@example/invoice.pdf" \
@@ -746,7 +746,7 @@ curl -X POST \
   -F "allowDuplicateDeleted=false" \
   -F "waitForExtraction=true" \
   -o - \
-  https://domonda.app/api/public/upload
+  https://idwell.ai/api/public/upload
 ```
 
 The response will be an HTTP status code 200 message with the created document's UUID in plaintext format:
@@ -758,7 +758,7 @@ Content-Type: text/plain
 ef059fa4-7288-4b77-8017-adce142e29a8
 ```
 
-The document ID will be a new v4 random UUID, except if a user-defined `uuid` that does not exist yet in domonda is passed as form field. 
+The document ID will be a new v4 random UUID, except if a user-defined `uuid` that does not exist yet in iDWELL is passed as form field. 
 
 This UUID can be used in the GraphQL document API:
 <https://domonda.github.io/api/doc/schema/document.doc.html>
@@ -846,7 +846,7 @@ they will be updated with the provided data,
 else new records will be inserted.
 
 For those endpoints, we also provide a Go SDK with the package
-[github.com/domonda/api/golang/domonda](https://pkg.go.dev/github.com/domonda/api/golang/domonda).
+[github.com/iDWELL/finance-api/golang/finance](https://pkg.go.dev/github.com/iDWELL/finance-api/golang/finance).
 
 Using this Go package to make API requests has the benefit of basic
 client-side validation of the data before sending the request
@@ -856,7 +856,7 @@ with the API server implementation.
 The server is also implemented with Go and uses the standard library
 JSON parser, which is documented here: <https://pkg.go.dev/encoding/json>.
 
-The struct types in `github.com/domonda/api/golang/domonda` define the JSON API
+The struct types in `github.com/iDWELL/finance-api/golang/finance` define the JSON API
 where every struct is mapped to a JSON object
 with the names of the struct fields used as JSON object value names.
 The Go JSON parser detects object values names case insensitive
@@ -895,9 +895,9 @@ but an alphanumeric string which has to match the regular expression
 
 #### POST General Ledger Accounts
 
-Go function: https://pkg.go.dev/github.com/domonda/api/golang/domonda#PostGLAccounts
+Go function: https://pkg.go.dev/github.com/iDWELL/finance-api/golang/finance#PostGLAccounts
 
-API endpoint: https://domonda.app/api/public/masterdata/gl-accounts
+API endpoint: https://idwell.ai/api/public/masterdata/gl-accounts
 
 Optional URL query parameters:
 * `source`: string describing the source of the data; use your company or service name
@@ -907,7 +907,7 @@ Optional URL query parameters:
 * `allOrNone`: pass `true` to run the import in a Postgres transaction where any error will undo all other actions. If `false`, all GL accounts up to the one with the error will be imported
 * `useCleanedInvalid`: pass `true` to clean invalid data and import the rest (only effective when `failOnInvalid` is `false`)
 
-Example: `https://domonda.app/api/public/masterdata/gl-accounts?source=MyCompany&objectSpecificAccountNos=true&findByName=true&failOnInvalid=false&allOrNone=true&useCleanedInvalid=true`
+Example: `https://idwell.ai/api/public/masterdata/gl-accounts?source=MyCompany&objectSpecificAccountNos=true&findByName=true&failOnInvalid=false&allOrNone=true&useCleanedInvalid=true`
 
 The request body is JSON array with objects matching the struct:
 
@@ -943,9 +943,9 @@ Existing partner companies are identified by VATIDNo, VendorAccountNumber,
 ClientAccountNumber, and Name and then updated.
 Else, a new partner company is created.
 
-Go function: https://pkg.go.dev/github.com/domonda/api/golang/domonda#PostPartners
+Go function: https://pkg.go.dev/github.com/iDWELL/finance-api/golang/finance#PostPartners
 
-API endpoint: https://domonda.app/api/public/masterdata/partner-companies
+API endpoint: https://idwell.ai/api/public/masterdata/partner-companies
 
 Optional URL query parameters:
   - `failOnInvalid`: If true, the function will fail if any partner data is invalid (interacts with `useCleanedInvalid`).
@@ -1008,11 +1008,11 @@ Example:
 
 ```sh
 curl -X POST \
-  -H "Authorization: Bearer ${DOMONDA_API_KEY}" \
+  -H "Authorization: Bearer ${IDWELL_API_KEY}" \
   -H "Content-Type: application/json" \
   --data '[{"Name":"Beispiel GmbH","Street":"Ringstrasse","ZIP":"10115","City":"Berlin","Country":"DE","Email":"contact@example.com","ClientAccountNumber":"K1","VendorAccountNumber":"L1"}]' \
   -o - \
-  https://domonda.app/api/public/masterdata/partner-companies
+  https://idwell.ai/api/public/masterdata/partner-companies
 ```
 
 
@@ -1020,9 +1020,9 @@ curl -X POST \
 
 Existing bank accounts are identified by their IBAN and then updated instead of inserted.
 
-Go function: https://pkg.go.dev/github.com/domonda/api/golang/domonda#PostBankAccounts
+Go function: https://pkg.go.dev/github.com/iDWELL/finance-api/golang/finance#PostBankAccounts
 
-API endpoint: https://domonda.app/api/public/masterdata/bank-accounts
+API endpoint: https://idwell.ai/api/public/masterdata/bank-accounts
 
 Optional URL query parameters:
 * `source`: string describing the source of the data; use your company or service name
@@ -1048,9 +1048,9 @@ type BankAccount struct {
 The following endpoint updates or inserts instances of the `RealEstateObject` class
 using the `Number` property as the identifier for objects.
 
-Go function: https://pkg.go.dev/github.com/domonda/api/golang/domonda#PostRealEstateObjects
+Go function: https://pkg.go.dev/github.com/iDWELL/finance-api/golang/finance#PostRealEstateObjects
 
-API endpoint: https://domonda.app/api/public/masterdata/real-estate-objects
+API endpoint: https://idwell.ai/api/public/masterdata/real-estate-objects
 
 Optional URL query parameters:
 * `source`: string describing the source of the data; use your company or service name
@@ -1094,9 +1094,9 @@ const (
 The following endpoint updates or inserts instances of a custom object class
 using the property `idPropName` as the identifier for the objects.
 
-Go function: https://pkg.go.dev/github.com/domonda/api/golang/domonda#PostObjectInstancesWithIDProp
+Go function: https://pkg.go.dev/github.com/iDWELL/finance-api/golang/finance#PostObjectInstancesWithIDProp
 
-API endpoint schema: https://domonda.app/api/public/masterdata/upsert-objects/{className}/id-prop/{idPropName}
+API endpoint schema: https://idwell.ai/api/public/masterdata/upsert-objects/{className}/id-prop/{idPropName}
 
 Replace `{className}` with the name of the custom object class and
 `{idPropName}` with the name of the property that is used as the identifier for the objects.
@@ -1137,7 +1137,7 @@ Request:
 TOKEN="your API key"
 doc_id="document ID"
 
-curl https://domonda.app/api/public/document/${doc_id}/custom-fields/ \
+curl https://idwell.ai/api/public/document/${doc_id}/custom-fields/ \
     -H "Authorization: Bearer ${TOKEN}"
 ```
 
@@ -1153,19 +1153,19 @@ Response:
 
 ## Go SDK
 
-The Domonda API provides a Go SDK that offers type-safe access to all REST API endpoints with built-in client-side validation. The SDK is automatically kept in sync with the server implementation, ensuring compatibility.
+The iDWELL Finance API provides a Go SDK that offers type-safe access to all REST API endpoints with built-in client-side validation. The SDK is automatically kept in sync with the server implementation, ensuring compatibility.
 
 ### Installation
 
 Install the SDK using Go modules:
 
 ```bash
-go get github.com/domonda/api/golang/domonda
+go get github.com/iDWELL/finance-api/golang/finance
 ```
 
 ### Package Documentation
 
-Full package documentation is available at: https://pkg.go.dev/github.com/domonda/api/golang/domonda
+Full package documentation is available at: https://pkg.go.dev/github.com/iDWELL/finance-api/golang/finance
 
 ### Key Features
 
@@ -1182,7 +1182,7 @@ Full package documentation is available at: https://pkg.go.dev/github.com/domond
 ```go
 import (
     "context"
-    "github.com/domonda/api/golang/domonda"
+    "github.com/iDWELL/finance-api/golang/finance"
     "github.com/domonda/go-types/uu"
     "github.com/ungerik/go-fs"
 )
@@ -1195,7 +1195,7 @@ func uploadDocument() error {
     documentFile := fs.File("invoice.pdf")
     invoiceFile := fs.File("invoice.json")
 
-    documentID, err := domonda.UploadDocument(
+    documentID, err := finance.UploadDocument(
         ctx,
         apiKey,
         categoryID,
@@ -1218,7 +1218,7 @@ func uploadDocument() error {
 ```go
 import (
     "context"
-    "github.com/domonda/api/golang/domonda"
+    "github.com/iDWELL/finance-api/golang/finance"
     "github.com/domonda/go-types/account"
     "github.com/domonda/go-types/country"
     "github.com/domonda/go-types/notnull"
@@ -1229,7 +1229,7 @@ func importPartners() error {
     ctx := context.Background()
     apiKey := "YOUR_API_KEY"
 
-    partners := []*domonda.Partner{
+    partners := []*finance.Partner{
         {
             Name:    notnull.TrimmedString("Example Company GmbH"),
             Street:  nullable.TrimmedString("Hauptstrasse 123"),
@@ -1241,7 +1241,7 @@ func importPartners() error {
         },
     }
 
-    results, err := domonda.PostPartners(
+    results, err := finance.PostPartners(
         ctx,
         apiKey,
         partners,
@@ -1257,13 +1257,13 @@ func importPartners() error {
     // Check results
     for i, result := range results {
         switch result.State {
-        case domonda.ImportStateCreated:
+        case finance.ImportStateCreated:
             println("Partner", i, "created")
-        case domonda.ImportStateUpdated:
+        case finance.ImportStateUpdated:
             println("Partner", i, "updated")
-        case domonda.ImportStateUnchanged:
+        case finance.ImportStateUnchanged:
             println("Partner", i, "unchanged")
-        case domonda.ImportStateError:
+        case finance.ImportStateError:
             println("Partner", i, "error:", result.Error)
         }
     }
@@ -1277,7 +1277,7 @@ func importPartners() error {
 ```go
 import (
     "context"
-    "github.com/domonda/api/golang/domonda"
+    "github.com/iDWELL/finance-api/golang/finance"
     "github.com/domonda/go-types/account"
     "github.com/domonda/go-types/nullable"
 )
@@ -1286,7 +1286,7 @@ func importGLAccounts() error {
     ctx := context.Background()
     apiKey := "YOUR_API_KEY"
 
-    accounts := []*domonda.GLAccount{
+    accounts := []*finance.GLAccount{
         {
             Number:   account.Number("1000"),
             Name:     nullable.TrimmedString("Cash"),
@@ -1299,7 +1299,7 @@ func importGLAccounts() error {
         },
     }
 
-    results, err := domonda.PostGLAccounts(
+    results, err := finance.PostGLAccounts(
         ctx,
         apiKey,
         accounts,
@@ -1315,7 +1315,7 @@ func importGLAccounts() error {
 
     // Check results
     for i, result := range results {
-        if result.State == domonda.ImportStateError {
+        if result.State == finance.ImportStateError {
             println("Account", i, "error:", result.Error)
         } else {
             println("Account", result.NormalizedNumber, "imported with state:", result.State)
@@ -1331,7 +1331,7 @@ func importGLAccounts() error {
 ```go
 import (
     "context"
-    "github.com/domonda/api/golang/domonda"
+    "github.com/iDWELL/finance-api/golang/finance"
     "github.com/domonda/go-types/bank"
     "github.com/domonda/go-types/money"
     "github.com/domonda/go-types/notnull"
@@ -1341,7 +1341,7 @@ func importBankAccounts() error {
     ctx := context.Background()
     apiKey := "YOUR_API_KEY"
 
-    accounts := []*domonda.BankAccount{
+    accounts := []*finance.BankAccount{
         {
             IBAN:     bank.IBAN("DE89370400440532013000"),
             BIC:      bank.BIC("COBADEFFXXX"),
@@ -1350,7 +1350,7 @@ func importBankAccounts() error {
         },
     }
 
-    results, err := domonda.PostBankAccounts(
+    results, err := finance.PostBankAccounts(
         ctx,
         apiKey,
         accounts,
@@ -1364,7 +1364,7 @@ func importBankAccounts() error {
 
     // Check results
     for i, result := range results {
-        if result.State == domonda.ImportStateError {
+        if result.State == finance.ImportStateError {
             println("Bank account", i, "error:", result.Error)
         } else {
             println("Bank account", result.IBAN, "imported with state:", result.State)
@@ -1380,7 +1380,7 @@ func importBankAccounts() error {
 ```go
 import (
     "context"
-    "github.com/domonda/api/golang/domonda"
+    "github.com/iDWELL/finance-api/golang/finance"
     "github.com/domonda/go-types/account"
     "github.com/domonda/go-types/country"
     "github.com/domonda/go-types/notnull"
@@ -1390,9 +1390,9 @@ func importRealEstateObjects() error {
     ctx := context.Background()
     apiKey := "YOUR_API_KEY"
 
-    objects := []*domonda.RealEstateObject{
+    objects := []*finance.RealEstateObject{
         {
-            Type:          domonda.RealEstateObjectTypeWEG,
+            Type:          finance.RealEstateObjectTypeWEG,
             Number:        account.Number("001"),
             StreetAddress: notnull.TrimmedString("Musterstrasse 10"),
             City:          nullable.TrimmedString("Berlin"),
@@ -1402,7 +1402,7 @@ func importRealEstateObjects() error {
         },
     }
 
-    err := domonda.PostRealEstateObjects(
+    err := finance.PostRealEstateObjects(
         ctx,
         apiKey,
         objects,
@@ -1422,7 +1422,7 @@ func importRealEstateObjects() error {
 All SDK functions return errors that should be checked. Validation errors are returned before any network request is made, ensuring fast feedback:
 
 ```go
-partner := &domonda.Partner{
+partner := &finance.Partner{
     Name: notnull.TrimmedString(""), // Invalid: empty name
 }
 
@@ -1481,7 +1481,7 @@ Request:
 
 TOKEN="your API key"
 
-curl -X PUT https://domonda.app/api/public/idwell/crm-ticket/ \
+curl -X PUT https://idwell.ai/api/public/idwell/crm-ticket/ \
     -H "Authorization: Bearer ${TOKEN}" \
     -H "Content-Type: application/json" \
     -d '{CRM ticket...}'

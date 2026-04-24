@@ -1,10 +1,10 @@
-module github.com/domonda/api/gen-invoice-schema
+module github.com/iDWELL/finance-api/gen-invoice-schema
 
 go 1.25.0
 
-replace github.com/domonda/api/golang/domonda => ../golang/domonda
+replace github.com/iDWELL/finance-api/golang/finance => ../golang/finance
 
-require github.com/domonda/api/golang/domonda v0.0.0-00010101000000-000000000000 // replaced
+require github.com/iDWELL/finance-api/golang/finance v0.0.0-00010101000000-000000000000 // replaced
 
 require github.com/invopop/jsonschema v0.13.0
 

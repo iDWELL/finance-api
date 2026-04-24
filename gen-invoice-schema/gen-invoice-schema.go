@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/domonda/api/golang/domonda"
+	"github.com/iDWELL/finance-api/golang/finance"
 	"github.com/invopop/jsonschema"
 )
 
@@ -16,16 +16,16 @@ func main() {
 	// ------------------------------------------------------------------------
 
 	// reflector.AddGoComments needs to be called from the directory of the reflected package
-	err := os.Chdir("../golang/domonda")
+	err := os.Chdir("../golang/finance")
 	if err != nil {
-		log.Fatalf("Failed to change directory to golang/domonda: %v", err)
+		log.Fatalf("Failed to change directory to golang/finance: %v", err)
 	}
 	reflector := &jsonschema.Reflector{
 		Anonymous:      true,
 		ExpandedStruct: true,
 		DoNotReference: true,
 	}
-	err = reflector.AddGoComments("github.com/domonda/api/golang/domonda", ".")
+	err = reflector.AddGoComments("github.com/iDWELL/finance-api/golang/finance", ".")
 	if err != nil {
 		log.Fatalf("Failed to parse Go comments: %v", err)
 	}
@@ -34,8 +34,8 @@ func main() {
 	// Generate the schema
 	// ------------------------------------------------------------------------
 
-	schema := reflector.Reflect(domonda.Invoice{})
-	schema.ID = "https://raw.githubusercontent.com/domonda/api/refs/heads/master/invoice.schema.json"
+	schema := reflector.Reflect(finance.Invoice{})
+	schema.ID = "https://raw.githubusercontent.com/iDWELL/finance-api/refs/heads/master/invoice.schema.json"
 	schemaJSON, err := json.MarshalIndent(schema, "", "  ")
 	if err != nil {
 		log.Fatalf("Failed to generate schema: %v", err)

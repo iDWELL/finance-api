@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/domonda/api/refs/heads/master/invoice.schema.json",
+  "$id": "https://raw.githubusercontent.com/iDWELL/finance-api/refs/heads/master/invoice.schema.json",
   "properties": {
     "confirmedBy": {
       "oneOf": [
@@ -379,5 +379,5 @@
   },
   "additionalProperties": false,
   "type": "object",
-  "description": "Invoice uploaded from a third party system to Domonda."
+  "description": "Invoice uploaded from a third party system to iDWELL."
 }
