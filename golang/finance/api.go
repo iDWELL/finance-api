@@ -36,6 +36,8 @@ const (
 	// BaseURL is the base URL for all API endpoints
 	BaseURL = "https://idwell.ai/api/public"
 
+	GraphqlEndpoint = "/graphql"
+
 	// SourceTestEndpointNOP can be passed as magical value for
 	// the source argument of the post functions
 	// to test the endpoints without side effects.
@@ -71,5 +73,5 @@ func postJSON(ctx context.Context, apiKey, endpoint string, vals url.Values, pay
 	request.Header.Set("Authorization", "Bearer "+apiKey)
 	request.Header.Set("Content-Type", "application/json")
 
-	return http.DefaultClient.Do(request)
+	return httpClientFromCtx(ctx).Do(request)
 }

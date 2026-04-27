@@ -81,7 +81,7 @@ func UploadDocument(ctx context.Context, apiKey string, documentCategory uu.ID, 
 	request.Header.Add("Content-Type", form.FormDataContentType())
 	request.Header.Add("Authorization", "Bearer "+apiKey)
 
-	response, err := http.DefaultClient.Do(request)
+	response, err := httpClientFromCtx(ctx).Do(request)
 	if err != nil {
 		return uu.IDNil, err
 	}
