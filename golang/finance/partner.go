@@ -157,7 +157,7 @@ func (p *Partner) NormalizedAlternativeNames() []string {
 func (p *Partner) Normalize(resetInvalid bool) []error {
 	var errs []error
 	if p.Name.IsEmpty() {
-		errs = append(errs, errors.New("Name is empty"))
+		errs = append(errs, errors.New("name is empty"))
 	}
 
 	p.AlternativeNames = p.NormalizedAlternativeNames()
@@ -165,39 +165,24 @@ func (p *Partner) Normalize(resetInvalid bool) []error {
 	var err error
 	p.Country, err = p.Country.Normalized()
 	if err != nil {
-		errs = append(errs, fmt.Errorf("Country '%s' has error: %w", p.Country, err))
+		errs = append(errs, fmt.Errorf("country '%s' has error: %w", p.Country, err))
 		if resetInvalid {
 			p.Country.SetNull()
 		}
 	}
 	p.VATIDNo, err = p.VATIDNo.Normalized()
 	if err != nil {
-		errs = append(errs, fmt.Errorf("VATIDNo '%s' has error: %w", p.VATIDNo, err))
+		errs = append(errs, fmt.Errorf("vat_id no '%s' has error: %w", p.VATIDNo, err))
 		if resetInvalid {
 			p.VATIDNo.SetNull()
 		}
 	}
-	// if p.VATIDNo.ValidAndNotNull() && p.Country.ValidAndNotNull() {
-	// 	vatCountry := p.VATIDNo.Get().CountryCode()
-	// 	if vatCountry != vat.MOSSSchemaVATCountryCode && vatCountry != p.Country.Get() {
-	// 		errs = append(errs, fmt.Errorf("Country '%s' is different from VATIDNo '%s' country code", p.Country, p.VATIDNo))
-	// 		if resetInvalid {
-	// 			if p.Street.IsNotNull() && p.ZIP.IsNotNull() && p.City.IsNotNull() {
-	// 				// If there is a complete address, don't set the country to null
-	// 				p.VATIDNo.SetNull()
-	// 			} else {
-	// 				// If there is no address, keep the VAT ID
-	// 				p.Country.SetNull()
-	// 			}
-	// 		}
-	// 	}
-	// }
 	p.Email, err = p.Email.AddressPart()
 	if err == nil {
 		p.Email, err = p.Email.Normalized()
 	}
 	if err != nil {
-		errs = append(errs, fmt.Errorf("Email '%s' has error: %w", p.Email, err))
+		errs = append(errs, fmt.Errorf("email '%s' has error: %w", p.Email, err))
 		if resetInvalid {
 			p.Email.SetNull()
 		}
@@ -357,7 +342,7 @@ func PostPartners(ctx context.Context, apiKey string, partners []*Partner, failO
 	if err != nil {
 		return nil, err
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 	if response.StatusCode != 200 {
 		return nil, fmt.Errorf("unexpected status code: %d", response.StatusCode)
 	}

@@ -1,0 +1,108 @@
+version: "2"
+
+run:
+  go: "1.25"
+
+linters:
+  default: none
+  enable:
+    - asciicheck
+    - bodyclose
+    - errname
+    - exhaustive
+    - forcetypeassert
+    - gocritic
+    - godox
+    - gosec
+    - iface
+    - ireturn
+    - makezero
+    - mnd
+    - nilerr
+    - nilnesserr
+    - nilnil
+    - paralleltest
+    - perfsprint
+    - prealloc
+    - reassign
+    - revive
+    - rowserrcheck
+    - sloglint
+    - sqlclosecheck
+    - testifylint
+    - tparallel
+    - unconvert
+    - unparam
+    - usestdlibvars
+    - wastedassign
+    - whitespace
+    - wsl_v5
+  exclusions:
+    rules:
+      - path: '(.+)_test\.go'
+        linters:
+          - gosec
+        text: "G101|G117"
+      - linters:
+          - gosec
+        text: "G117"
+      - linters:
+          - gosec
+        text: "G704"
+      - linters:
+          - gosec
+        text: "G705"
+      - linters:
+          - gosec
+        text: "G706"
+  settings:
+    revive:
+      enable-all-rules: false
+      rules:
+        - name: atomic
+          severity: warning
+          disabled: false
+        - name: context-as-argument
+          severity: error
+          disabled: false
+          arguments:
+            - allowTypesBefore: "*testing.T"
+        - name: datarace
+          severity: error
+          disabled: false
+        - name: unused-parameter
+          severity: error
+        - name: use-errors-new
+          severity: warning
+        - name: var-naming
+          severity: error
+          arguments:
+            - []
+            - []
+            - - skipPackageNameChecks: true
+    lll:
+      line-length: 130
+      tab-width: 1
+    wsl_v5:
+      allow-first-in-block: true
+      allow-whole-block: false
+      branch-max-lines: 2
+
+formatters:
+  enable:
+    - gofmt
+    - gci
+  settings:
+    gofmt:
+      rewrite-rules:
+        - pattern: "interface{}"
+          replacement: "any"
+    gci:
+      custom-order: true
+      sections:
+        - blank
+        - standard
+        - default
+        - prefix(github.com/)
+        - prefix(github.com/iDWELL)
+        - localmodule

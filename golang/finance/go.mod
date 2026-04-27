@@ -6,6 +6,7 @@ tool github.com/ungerik/go-enum
 
 require (
 	github.com/domonda/go-types v0.0.0-20260327082518-11ac2cfe4cdf
+	github.com/pkg/errors v0.9.1
 	github.com/ungerik/go-fs v0.0.0-20260223082201-e2c085a20e01
 )
 
@@ -35,7 +36,6 @@ require (
 	github.com/olekukonko/errors v1.2.0 // indirect
 	github.com/olekukonko/ll v0.1.8 // indirect
 	github.com/olekukonko/tablewriter v1.1.4 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pkg/xattr v0.4.12 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect

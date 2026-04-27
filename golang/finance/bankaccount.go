@@ -115,7 +115,7 @@ func PostBankAccounts(ctx context.Context, apiKey string, accounts []*BankAccoun
 	if err != nil {
 		return nil, err
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 	if response.StatusCode != 200 {
 		return nil, fmt.Errorf("unexpected status code: %d", response.StatusCode)
 	}

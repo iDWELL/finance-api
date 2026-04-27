@@ -200,7 +200,7 @@ func (inv *Invoice) Validate() error {
 	if inv.DeliveredFrom.IsNotNull() && inv.DeliveredUntil.IsNotNull() && inv.DeliveredFrom.After(inv.DeliveredUntil) {
 		return fmt.Errorf("deliveredFrom date %s must not be after deliveredUntil date %s", inv.DeliveredFrom, inv.DeliveredUntil)
 	}
-	for i := range inv.DeliveryNoteNumbers {
+	for i := 0; i < len(inv.DeliveryNoteNumbers); i++ {
 		trimmed := strutil.TrimSpace(inv.DeliveryNoteNumbers[i])
 		if trimmed == "" {
 			inv.DeliveryNoteNumbers = slices.Delete(inv.DeliveryNoteNumbers, i, i+1)

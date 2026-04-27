@@ -90,7 +90,7 @@ func UploadDocument(ctx context.Context, apiKey string, documentCategory uu.ID, 
 		return uu.IDNil, fmt.Errorf("%d: %s", response.StatusCode, response.Status)
 	}
 
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
 		return uu.IDNil, err
