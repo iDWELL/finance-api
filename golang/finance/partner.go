@@ -93,6 +93,10 @@ type Partner struct {
 	// Multiple payment bank accounts for JSON import
 	// Use BankAccounts array when partner has multiple bank accounts
 	BankAccounts []bank.Account
+
+	// Active indicates if this partner is currently active
+	// Inactive partners are kept for historical reasons but excluded from suggestions
+	Active bool
 }
 
 func (p *Partner) Validate() error {

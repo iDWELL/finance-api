@@ -917,6 +917,7 @@ type GLAccount struct {
 	Name     nullable.TrimmedString // Name of the account
 	Category nullable.TrimmedString // Higher level description of the account
 	ObjectNo account.NullableNumber // Real estate object number
+	Active   bool                   // Whether the account is currently in use; inactive accounts are excluded from suggestions
 }
 ```
 
@@ -928,11 +929,13 @@ Example:
     "Number": "1/200",
     "Name": "Account for object 66",
     "Category": null,
-    "ObjectNo": "66"
+    "ObjectNo": "66",
+    "Active": true
   },
   {
     "Number": "9/100",
     "Name": "Other costs",
+    "Active": false
   }
 ]
 ```
@@ -983,6 +986,10 @@ type Partner struct {
 	// More payment bank accounts for the partner.
 	// As struct better suited for JSON import.
 	BankAccounts []bank.Account
+
+	// Active indicates whether the partner is currently active.
+	// Inactive partners are kept for historical reasons but excluded from suggestions.
+	Active bool
 }
 ```
 
@@ -1010,7 +1017,7 @@ Example:
 curl -X POST \
   -H "Authorization: Bearer ${IDWELL_API_KEY}" \
   -H "Content-Type: application/json" \
-  --data '[{"Name":"Beispiel GmbH","Street":"Ringstrasse","ZIP":"10115","City":"Berlin","Country":"DE","Email":"contact@example.com","ClientAccountNumber":"K1","VendorAccountNumber":"L1"}]' \
+  --data '[{"Name":"Beispiel GmbH","Street":"Ringstrasse","ZIP":"10115","City":"Berlin","Country":"DE","Email":"contact@example.com","ClientAccountNumber":"K1","VendorAccountNumber":"L1","Active":true}]' \
   -o - \
   https://idwell.ai/api/public/masterdata/partner-companies
 ```
@@ -1238,6 +1245,7 @@ func importPartners() error {
             Country: country.NullableCode("DE"),
             VendorAccountNumber: account.NullableNumber("L1000"),
             ClientAccountNumber: account.NullableNumber("K2000"),
+            Active:  true,
         },
     }
 
@@ -1291,11 +1299,13 @@ func importGLAccounts() error {
             Number:   account.Number("1000"),
             Name:     nullable.TrimmedString("Cash"),
             Category: nullable.TrimmedString("Assets"),
+            Active:   true,
         },
         {
             Number:   account.Number("4000"),
             Name:     nullable.TrimmedString("Sales Revenue"),
             Category: nullable.TrimmedString("Revenue"),
+            Active:   true,
         },
     }
 
