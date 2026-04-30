@@ -19,6 +19,7 @@ type GLAccount struct {
 	Name     nullable.TrimmedString // Name of the account
 	Category nullable.TrimmedString // Higher level description of the account
 	ObjectNo account.NullableNumber // Optional real estate object number connected to the account
+	Active   bool                   // Active indicates if the account is currently in use; inactive accounts are excluded from suggestions
 }
 
 func (a *GLAccount) Validate() error {
