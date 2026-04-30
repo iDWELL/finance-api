@@ -25,6 +25,7 @@ The iDWELL Finance API is a comprehensive platform for managing financial docume
    * [GraphQL query examples](#graphql-query-examples)
 3. [**REST API**](#rest-api)
    * [Document PDF download](#document-pdf-download)
+     * [Download PDF with Go SDK](#download-pdf-with-go-sdk)
    * [File uploads](#file-uploads)
    * [Upload structured invoice data as JSON](#upload-structured-invoice-data-as-json)
    * [Upload company master data as JSON](#upload-company-master-data-as-json)
@@ -487,6 +488,46 @@ Example URL to download only the audit trail in English:
 
 ```
 https://idwell.ai/api/public/document/00000000-0000-0000-0000-000000000000.pdf?auditTrail=only&auditTrailLang=en
+```
+
+### Download PDF with Go SDK
+
+Go function: https://pkg.go.dev/github.com/iDWELL/finance-api/golang/finance#DownloadDocumentPDF
+
+```go
+import (
+    "context"
+    "github.com/domonda/go-types/uu"
+    "github.com/iDWELL/finance-api/golang/finance"
+)
+
+func downloadDocument() error {
+    ctx := context.Background()
+    apiKey := "YOUR_API_KEY"
+    docID := uu.IDFromString("00000000-0000-0000-0000-000000000000")
+
+    // Plain PDF
+    file, err := finance.DownloadDocumentPDF(ctx, apiKey, docID)
+
+    // PDF with audit trail appended in English
+    file, err = finance.DownloadDocumentPDF(ctx, apiKey, docID,
+        finance.WithAuditTrail("append"),
+        finance.WithAuditTrailLang("en"),
+    )
+
+    // Audit trail only, with embedded XML
+    file, err = finance.DownloadDocumentPDF(ctx, apiKey, docID,
+        finance.WithAuditTrail("only"),
+        finance.WithEmbedXML(),
+    )
+
+    if err != nil {
+        return err
+    }
+
+    println("Downloaded:", file.Name(), len(file.FileData), "bytes")
+    return nil
+}
 ```
 
 ### File uploads
