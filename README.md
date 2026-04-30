@@ -28,6 +28,13 @@ The iDWELL Finance API is a comprehensive platform for managing financial docume
    * [File uploads](#file-uploads)
    * [Upload structured invoice data as JSON](#upload-structured-invoice-data-as-json)
    * [Upload company master data as JSON](#upload-company-master-data-as-json)
+     * [POST General Ledger Accounts](#post-general-ledger-accounts)
+     * [POST Partner Companies](#post-partner-companies)
+     * [POST Bank Accounts](#post-bank-accounts)
+     * [POST Real Estate Objects](#post-real-estate-objects)
+     * [POST Real Estate Object Groups](#post-real-estate-object-groups)
+     * [POST Real Estate Object Roles](#post-real-estate-object-roles)
+     * [POST Custom Object Class Instances](#post-custom-object-class-instances)
    * [Get document's custom fields](#get-documents-custom-fields)
 4. [**Go SDK**](#go-sdk)
    * [Installation](#installation)
@@ -1096,6 +1103,49 @@ const (
 )
 ```
 
+#### POST Real Estate Object Groups
+
+Groups real estate objects by an external ID. Existing groups are identified by `ExternalID` and updated; otherwise a new group is created.
+
+Go function: https://pkg.go.dev/github.com/iDWELL/finance-api/golang/finance#PostObjectGroups
+
+API endpoint: https://idwell.ai/api/public/masterdata/real-estate-object-groups
+
+Optional URL query parameters:
+* `source`: string describing the source of the data; use your company or service name
+
+The request body is a JSON array of objects matching the struct:
+
+```go
+type ObjectGroup struct {
+	ExternalID string   `json:"ExternalID"`
+	Name       string   `json:"Name"`
+	AreaCode   *string  `json:"AreaCode"`
+	ObjectIDs  []string `json:"ObjectIDs"`
+}
+```
+
+#### POST Real Estate Object Roles
+
+Assigns user roles to real estate objects. Existing assignments are identified by `ObjectID` + `Email` and updated; otherwise a new assignment is created.
+
+Go function: https://pkg.go.dev/github.com/iDWELL/finance-api/golang/finance#PostObjectRoles
+
+API endpoint: https://idwell.ai/api/public/masterdata/real-estate-object-roles
+
+Optional URL query parameters:
+* `source`: string describing the source of the data; use your company or service name
+
+The request body is a JSON array of objects matching the struct:
+
+```go
+type ObjectRole struct {
+	Name     string `json:"Name"`
+	ObjectID string `json:"ObjectID"`
+	Email    string `json:"Email"`
+}
+```
+
 #### POST Custom Object Class Instances
 
 The following endpoint updates or inserts instances of a custom object class
@@ -1423,6 +1473,66 @@ func importRealEstateObjects() error {
     }
 
     println("Real estate objects imported successfully")
+    return nil
+}
+```
+
+#### Import Real Estate Object Groups
+
+```go
+import (
+    "context"
+    "github.com/iDWELL/finance-api/golang/finance"
+)
+
+func importObjectGroups() error {
+    ctx := context.Background()
+    apiKey := "YOUR_API_KEY"
+
+    groups := []*finance.ObjectGroup{
+        {
+            ExternalID: "group-001",
+            Name:       "Gruppe Wien",
+            ObjectIDs:  []string{"001", "002", "003"},
+        },
+    }
+
+    err := finance.PostObjectGroups(ctx, apiKey, groups, "MyPropertyManagement")
+    if err != nil {
+        return err
+    }
+
+    println("Object groups imported successfully")
+    return nil
+}
+```
+
+#### Import Real Estate Object Roles
+
+```go
+import (
+    "context"
+    "github.com/iDWELL/finance-api/golang/finance"
+)
+
+func importObjectRoles() error {
+    ctx := context.Background()
+    apiKey := "YOUR_API_KEY"
+
+    roles := []*finance.ObjectRole{
+        {
+            Name:     "Hausverwalter",
+            ObjectID: "001",
+            Email:    "manager@example.com",
+        },
+    }
+
+    err := finance.PostObjectRoles(ctx, apiKey, roles, "MyPropertyManagement")
+    if err != nil {
+        return err
+    }
+
+    println("Object roles imported successfully")
     return nil
 }
 ```
