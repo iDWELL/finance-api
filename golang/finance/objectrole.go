@@ -22,7 +22,7 @@ type ObjectRole struct {
 //   - source: String describing the source of the data; use your company or service name
 //
 // API endpoint: https://idwell.ai/api/public/masterdata/real-estate-object-roles
-func PostObjectRoles(ctx context.Context, apiKey string, roles []ObjectRole, source string) error {
+func PostObjectRoles(ctx context.Context, apiKey string, roles []*ObjectRole, source string) error {
 	vals := make(url.Values)
 	if source != "" {
 		vals.Set("source", source)

@@ -23,7 +23,7 @@ type ObjectGroup struct {
 //   - source: String describing the source of the data; use your company or service name
 //
 // API endpoint: https://idwell.ai/api/public/masterdata/real-estate-object-groups
-func PostObjectGroups(ctx context.Context, apiKey string, groups []ObjectGroup, source string) error {
+func PostObjectGroups(ctx context.Context, apiKey string, groups []*ObjectGroup, source string) error {
 	vals := make(url.Values)
 	if source != "" {
 		vals.Set("source", source)
