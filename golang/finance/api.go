@@ -62,16 +62,19 @@ func postJSON(ctx context.Context, apiKey, endpoint string, vals url.Values, pay
 	if err != nil {
 		return nil, err
 	}
+
 	url := baseURLFromCtx(ctx) + endpoint
 	if len(vals) > 0 {
 		url += "?" + vals.Encode()
 	}
-	request, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewReader(payloadBytes))
+
+	request, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(payloadBytes))
 	if err != nil {
 		return nil, err
 	}
+
 	request.Header.Set("Authorization", "Bearer "+apiKey)
 	request.Header.Set("Content-Type", "application/json")
 
-	return httpClientFromCtx(ctx).Do(request)
+	return httpClientFromCtx(ctx).Do(request) //nolint:gosec // intentional HTTP call to API URL from context
 }

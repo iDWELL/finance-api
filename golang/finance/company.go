@@ -87,7 +87,7 @@ func GetCurrentCompany(ctx context.Context, apiKey string) (Company, error) {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+apiKey)
 
-	response, err := httpClientFromCtx(ctx).Do(req)
+	response, err := httpClientFromCtx(ctx).Do(req) //nolint:gosec // intentional HTTP call to API URL from context
 	if err != nil {
 		return Company{}, fmt.Errorf("the HTTP request failed with error %w", err)
 	}

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"net/url"
 	"slices"
 	"sort"
@@ -15,6 +16,7 @@ import (
 	"github.com/domonda/go-types/account"
 	"github.com/domonda/go-types/bank"
 	"github.com/domonda/go-types/country"
+	"github.com/domonda/go-types/date"
 	"github.com/domonda/go-types/email"
 	"github.com/domonda/go-types/notnull"
 	"github.com/domonda/go-types/nullable"
@@ -33,7 +35,7 @@ type ImportPartnerResult struct {
 	InputWarnings []string
 
 	// PartnerCompany contains the partner company data after import (JSON format)
-	// TODO replace json.RawMessage with struct types
+	// PartnerCompany: replace json.RawMessage with struct types once the API schema is stable
 	PartnerCompany json.RawMessage `json:",omitempty"`
 
 	// PartnerLocations contains the partner location data after import (JSON format)
@@ -97,6 +99,16 @@ type Partner struct {
 	// Active indicates if this partner is currently active
 	// Inactive partners are kept for historical reasons but excluded from suggestions
 	Active bool
+
+	// TaxExemptionRequired indicates whether the vendor requires an exemption certificate.
+	// Maps to iX-Haus KREDITOR FreistellungNotwendig="notwendig".
+	TaxExemptionRequired nullable.Type[bool]
+
+	// TaxExemptionExpiresAt is the expiry date of the vendor's exemption certificate.
+	TaxExemptionExpiresAt date.NullableDate
+
+	// Paragraph13bApplicable indicates if §13b UStG (Bauleistungserbringer) applies.
+	Paragraph13bApplicable nullable.Type[bool]
 }
 
 func (p *Partner) Validate() error {
@@ -104,32 +116,41 @@ func (p *Partner) Validate() error {
 	if p.Name.IsEmpty() {
 		err = errors.Join(err, errors.New("empty Partner.Name"))
 	}
+
 	if e := p.Country.Validate(); e != nil {
 		err = errors.Join(err, fmt.Errorf("invalid Partner.Country %q: %w", p.Country, e))
 	}
+
 	if e := p.Email.Validate(); e != nil {
 		err = errors.Join(err, fmt.Errorf("invalid Partner.Email %q: %w", p.Email, e))
 	}
+
 	if e := p.VATIDNo.Validate(); e != nil {
 		err = errors.Join(err, fmt.Errorf("invalid Partner.VATIDNo %q: %w", p.VATIDNo, e))
 	}
+
 	if e := p.VendorAccountNumber.Validate(); e != nil {
 		err = errors.Join(err, fmt.Errorf("invalid Partner.VendorAccountNumber %q: %w", p.VendorAccountNumber, e))
 	}
+
 	if e := p.ClientAccountNumber.Validate(); e != nil {
 		err = errors.Join(err, fmt.Errorf("invalid Partner.ClientAccountNumber %q: %w", p.ClientAccountNumber, e))
 	}
+
 	if e := p.IBAN.Validate(); e != nil {
 		err = errors.Join(err, fmt.Errorf("invalid Partner.IBAN %q: %w", p.IBAN, e))
 	}
+
 	if e := p.BIC.Validate(); e != nil {
 		err = errors.Join(err, fmt.Errorf("invalid Partner.BIC %q: %w", p.BIC, e))
 	}
+
 	for i := range p.BankAccounts {
 		if e := p.BankAccounts[i].Validate(); e != nil {
 			err = errors.Join(err, fmt.Errorf("invalid Partner.BankAccounts[%d] %s: %w", i, p.BankAccounts[i], e))
 		}
 	}
+
 	return err
 }
 
@@ -143,7 +164,9 @@ func (p *Partner) NormalizedAlternativeNames() []string {
 			names = append(names, n)
 		}
 	}
+
 	sort.Strings(names)
+
 	return names
 }
 
@@ -167,6 +190,7 @@ func (p *Partner) Normalize(resetInvalid bool) []error {
 	p.AlternativeNames = p.NormalizedAlternativeNames()
 
 	var err error
+
 	p.Country, err = p.Country.Normalized()
 	if err != nil {
 		errs = append(errs, fmt.Errorf("country '%s' has error: %w", p.Country, err))
@@ -174,6 +198,7 @@ func (p *Partner) Normalize(resetInvalid bool) []error {
 			p.Country.SetNull()
 		}
 	}
+
 	p.VATIDNo, err = p.VATIDNo.Normalized()
 	if err != nil {
 		errs = append(errs, fmt.Errorf("vat_id no '%s' has error: %w", p.VATIDNo, err))
@@ -181,28 +206,33 @@ func (p *Partner) Normalize(resetInvalid bool) []error {
 			p.VATIDNo.SetNull()
 		}
 	}
+
 	p.Email, err = p.Email.AddressPart()
 	if err == nil {
 		p.Email, err = p.Email.Normalized()
 	}
+
 	if err != nil {
 		errs = append(errs, fmt.Errorf("email '%s' has error: %w", p.Email, err))
 		if resetInvalid {
 			p.Email.SetNull()
 		}
 	}
+
 	if err = p.VendorAccountNumber.Validate(); err != nil {
 		errs = append(errs, fmt.Errorf("VendorAccountNumber '%s' has error: %w", p.VendorAccountNumber, err))
 		if resetInvalid {
 			p.VendorAccountNumber.SetNull()
 		}
 	}
+
 	if err = p.ClientAccountNumber.Validate(); err != nil {
 		errs = append(errs, fmt.Errorf("ClientAccountNumber '%s' has error: %w", p.ClientAccountNumber, err))
 		if resetInvalid {
 			p.ClientAccountNumber.SetNull()
 		}
 	}
+
 	p.IBAN, err = bank.NullableIBAN(strings.ToUpper(string(p.IBAN))).Normalized()
 	if err != nil {
 		errs = append(errs, fmt.Errorf("IBAN '%s' has error: %w", p.IBAN, err))
@@ -210,6 +240,7 @@ func (p *Partner) Normalize(resetInvalid bool) []error {
 			p.IBAN.SetNull()
 		}
 	}
+
 	p.BIC, err = p.BIC.Normalized()
 	if err != nil {
 		errs = append(errs, fmt.Errorf("BIC '%s' has error: %w", p.BIC, err))
@@ -217,6 +248,7 @@ func (p *Partner) Normalize(resetInvalid bool) []error {
 			p.BIC.SetNull()
 		}
 	}
+
 	for i := 0; i < len(p.BankAccounts); i++ {
 		if err = p.BankAccounts[i].Normalize(); err != nil {
 			errs = append(errs, fmt.Errorf("BankAccounts[%d] has error: %w", i, err))
@@ -226,6 +258,7 @@ func (p *Partner) Normalize(resetInvalid bool) []error {
 			}
 		}
 	}
+
 	if p.IBAN.IsNotNull() {
 		// Prepend IBAN/BIC as first bank account
 		p.BankAccounts = append(
@@ -249,24 +282,38 @@ func (p *Partner) Normalize(resetInvalid bool) []error {
 			}
 		}
 	}
+
 	return errs
+}
+
+// NeedUpsertTaxExemption reports whether any tax exemption field is set
+// and the partner_company_tax_exemption row should be upserted.
+func (p *Partner) NeedUpsertTaxExemption() bool {
+	return p.TaxExemptionRequired.IsNotNull() ||
+		p.TaxExemptionExpiresAt.IsNotNull() ||
+		p.Paragraph13bApplicable.IsNotNull()
 }
 
 func (p *Partner) String() string {
 	var b strings.Builder
 	b.WriteString(p.Name.String())
+
 	if p.Country.IsNotNull() {
 		fmt.Fprintf(&b, "|%s", p.Country)
 	}
+
 	if p.VATIDNo.IsNotNull() {
 		fmt.Fprintf(&b, "|%s", p.VATIDNo)
 	}
+
 	if p.VendorAccountNumber.IsNotNull() {
 		fmt.Fprintf(&b, "|Vendor:%s", p.VendorAccountNumber)
 	}
+
 	if p.ClientAccountNumber.IsNotNull() {
 		fmt.Fprintf(&b, "|Client:%s", p.ClientAccountNumber)
 	}
+
 	return b.String()
 }
 
@@ -277,14 +324,17 @@ func (p *Partner) EqualAlternativeNames(names []string) bool {
 	if len(p.AlternativeNames) != len(names) {
 		return false
 	}
+
 	for _, name := range names {
 		name = strings.TrimSpace(name)
+
 		if !slices.ContainsFunc(p.AlternativeNames, func(altName string) bool {
 			return name == strings.TrimSpace(altName)
 		}) {
 			return false
 		}
 	}
+
 	return true
 }
 
@@ -333,29 +383,38 @@ func PostPartners(ctx context.Context, apiKey string, partners []*Partner, failO
 	if failOnInvalid {
 		vals.Set("failOnInvalid", "true")
 	}
+
 	if useCleanedInvalid {
 		vals.Set("useCleanedInvalid", "true")
 	}
+
 	if allOrNone {
 		vals.Set("allOrNone", "true")
 	}
+
 	if source != "" {
 		vals.Set("source", source)
 	}
+
 	response, err := postJSON(ctx, apiKey, "/masterdata/partner-companies", vals, partners)
 	if err != nil {
 		return nil, err
 	}
+
 	defer func() { _ = response.Body.Close() }()
-	if response.StatusCode != 200 {
+
+	if response.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("unexpected status code: %d", response.StatusCode)
 	}
+
 	data, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
+
 	if err := json.Unmarshal(data, &results); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal response body: %w", err)
 	}
+
 	return results, nil
 }

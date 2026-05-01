@@ -8,9 +8,8 @@ import (
 	"mime/multipart"
 	"net/http"
 
-	"github.com/ungerik/go-fs"
-
 	"github.com/domonda/go-types/uu"
+	"github.com/ungerik/go-fs"
 )
 
 // UploadDocument uploads a document file (PDF, PNG, JPEG, or TIFF) to create a new document in iDWELL.
@@ -53,6 +52,7 @@ func UploadDocument(ctx context.Context, apiKey string, documentCategory uu.ID, 
 	if err != nil {
 		return uu.IDNil, err
 	}
+
 	_, err = documentFile.WriteTo(documentWriter)
 	if err != nil {
 		return uu.IDNil, err
@@ -63,6 +63,7 @@ func UploadDocument(ctx context.Context, apiKey string, documentCategory uu.ID, 
 		if err != nil {
 			return uu.IDNil, err
 		}
+
 		_, err = invoiceFile.WriteTo(invoiceWriter)
 		if err != nil {
 			return uu.IDNil, err
@@ -74,23 +75,25 @@ func UploadDocument(ctx context.Context, apiKey string, documentCategory uu.ID, 
 		return uu.IDNil, err
 	}
 
-	request, err := http.NewRequestWithContext(ctx, "POST", baseURLFromCtx(ctx)+"/upload", body)
+	request, err := http.NewRequestWithContext(ctx, http.MethodPost, baseURLFromCtx(ctx)+"/upload", body)
 	if err != nil {
 		return uu.IDNil, err
 	}
+
 	request.Header.Add("Content-Type", form.FormDataContentType())
 	request.Header.Add("Authorization", "Bearer "+apiKey)
 
-	response, err := httpClientFromCtx(ctx).Do(request)
+	response, err := httpClientFromCtx(ctx).Do(request) //nolint:gosec // intentional HTTP call to API URL from context
 	if err != nil {
 		return uu.IDNil, err
 	}
 
-	if response.StatusCode != 200 {
+	if response.StatusCode != http.StatusOK {
 		return uu.IDNil, fmt.Errorf("%d: %s", response.StatusCode, response.Status)
 	}
 
 	defer func() { _ = response.Body.Close() }()
+
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
 		return uu.IDNil, err

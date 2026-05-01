@@ -37,24 +37,6 @@ linters:
     - wastedassign
     - whitespace
     - wsl_v5
-  exclusions:
-    rules:
-      - path: '(.+)_test\.go'
-        linters:
-          - gosec
-        text: "G101|G117"
-      - linters:
-          - gosec
-        text: "G117"
-      - linters:
-          - gosec
-        text: "G704"
-      - linters:
-          - gosec
-        text: "G705"
-      - linters:
-          - gosec
-        text: "G706"
   settings:
     revive:
       enable-all-rules: false

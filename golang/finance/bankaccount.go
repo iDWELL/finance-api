@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"net/url"
 
 	"github.com/domonda/go-types/bank"
@@ -32,15 +33,19 @@ func (a *BankAccount) Validate() (err error) {
 	if e := a.IBAN.Validate(); e != nil {
 		err = errors.Join(err, fmt.Errorf("invalid BankAccount.IBAN %q: %w", a.IBAN, e))
 	}
+
 	if e := a.BIC.Validate(); e != nil {
 		err = errors.Join(err, fmt.Errorf("invalid BankAccount.BIC %q: %w", a.BIC, e))
 	}
+
 	if !a.Currency.Valid() {
 		err = errors.Join(err, fmt.Errorf("invalid BankAccount.Currency %q", a.Currency))
 	}
+
 	if a.Holder.IsEmpty() {
 		err = errors.Join(err, errors.New("empty BankAccount.Holder"))
 	}
+
 	return err
 }
 
@@ -49,15 +54,19 @@ func (a *BankAccount) Normalize() (err error) {
 	if a.IBAN, e = a.IBAN.Normalized(); e != nil {
 		err = errors.Join(err, fmt.Errorf("invalid BankAccount.IBAN %q: %w", a.IBAN, e))
 	}
+
 	if a.BIC, e = a.BIC.Normalized(); e != nil {
 		err = errors.Join(err, fmt.Errorf("invalid BankAccount.BIC %q: %w", a.BIC, e))
 	}
+
 	if a.Currency, e = a.Currency.Normalized(); e != nil {
 		err = errors.Join(err, fmt.Errorf("invalid BankAccount.Currency %q: %w", a.Currency, e))
 	}
+
 	if a.Holder.IsEmpty() {
 		err = errors.Join(err, errors.New("empty BankAccount.Holder"))
 	}
+
 	return err
 }
 
@@ -97,6 +106,7 @@ func PostBankAccounts(ctx context.Context, apiKey string, accounts []*BankAccoun
 			err = errors.Join(err, fmt.Errorf("BankAccount at index %d has error: %w", i, e))
 		}
 	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -105,26 +115,34 @@ func PostBankAccounts(ctx context.Context, apiKey string, accounts []*BankAccoun
 	if failOnInvalid {
 		vals.Set("failOnInvalid", "true")
 	}
+
 	if allOrNone {
 		vals.Set("allOrNone", "true")
 	}
+
 	if source != "" {
 		vals.Set("source", source)
 	}
+
 	response, err := postJSON(ctx, apiKey, "/masterdata/bank-accounts", vals, accounts)
 	if err != nil {
 		return nil, err
 	}
+
 	defer func() { _ = response.Body.Close() }()
-	if response.StatusCode != 200 {
+
+	if response.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("unexpected status code: %d", response.StatusCode)
 	}
+
 	data, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
+
 	if err := json.Unmarshal(data, &results); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal response body: %w", err)
 	}
+
 	return results, nil
 }

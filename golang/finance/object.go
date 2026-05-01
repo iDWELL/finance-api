@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 	"regexp"
 )
@@ -19,12 +20,15 @@ func PostObjectInstancesWithIDProp(ctx context.Context, apiKey string, className
 	if className == "" {
 		return errors.New("className is required")
 	}
+
 	if idPropName == "" {
 		return errors.New("idPropName is required")
 	}
+
 	if !validIdentifier.MatchString(className) {
 		return errors.New("className contains invalid characters")
 	}
+
 	if !validIdentifier.MatchString(idPropName) {
 		return errors.New("idPropName contains invalid characters")
 	}
@@ -45,13 +49,18 @@ func PostObjectInstancesWithIDProp(ctx context.Context, apiKey string, className
 	}
 
 	endpoint := fmt.Sprintf("/masterdata/upsert-objects/%s/id-prop/%s", className, idPropName)
+
 	response, err := postJSON(ctx, apiKey, endpoint, vals, objectsProps)
 	if err != nil {
 		return err
 	}
-	if response.StatusCode != 200 {
+
+	defer func() { _ = response.Body.Close() }()
+
+	if response.StatusCode != http.StatusOK {
 		return fmt.Errorf("unexpected status code: %d", response.StatusCode)
 	}
+
 	return nil
 }
 

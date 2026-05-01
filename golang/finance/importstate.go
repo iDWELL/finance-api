@@ -33,6 +33,7 @@ func (i ImportState) Valid() bool {
 		ImportStateError:
 		return true
 	}
+
 	return false
 }
 
@@ -41,6 +42,7 @@ func (i ImportState) Validate() error {
 	if !i.Valid() {
 		return fmt.Errorf("invalid value %#v for type finance.ImportState", i)
 	}
+
 	return nil
 }
 

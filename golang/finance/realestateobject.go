@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/domonda/go-types/account"
@@ -64,26 +65,33 @@ func (o *RealEstateObject) Validate() error {
 	if err = o.Type.Validate(); err != nil {
 		errs = append(errs, fmt.Errorf("RealEstateObject.Type: %w", err))
 	}
+
 	if err = o.Number.Validate(); err != nil {
 		errs = append(errs, fmt.Errorf("RealEstateObject.Number: %w", err))
 	}
+
 	if err = o.AccountingArea.Validate(); err != nil {
 		errs = append(errs, fmt.Errorf("RealEstateObject.AccountingArea: %w", err))
 	}
+
 	if err = o.UserAccount.Validate(); err != nil {
 		errs = append(errs, fmt.Errorf("RealEstateObject.UserAccount: %w", err))
 	}
+
 	if o.Country, err = o.Country.Normalized(); err != nil {
 		errs = append(errs, fmt.Errorf("RealEstateObject.Country: %w", err))
 	}
+
 	if o.StreetAddress.IsEmpty() {
 		errs = append(errs, errors.New("empty RealEstateObject.StreetAddress"))
 	}
+
 	for i := range o.BankAccounts {
 		if err = o.BankAccounts[i].Validate(); err != nil {
 			errs = append(errs, fmt.Errorf("RealEstateObject.BankAccounts[%d]: %w", i, err))
 		}
 	}
+
 	return errors.Join(errs...)
 }
 
@@ -140,6 +148,7 @@ func (r RealEstateObjectType) Valid() bool {
 		RealEstateObjectTypeHBH:
 		return true
 	}
+
 	return false
 }
 
@@ -148,6 +157,7 @@ func (r RealEstateObjectType) Validate() error {
 	if !r.Valid() {
 		return fmt.Errorf("invalid value %#v for type finance.RealEstateObjectType", r)
 	}
+
 	return nil
 }
 
@@ -209,11 +219,13 @@ func (r RealEstateObjectType) IsVirtual() bool {
 // API endpoint: https://idwell.ai/api/public/masterdata/real-estate-objects
 func PostRealEstateObjects(ctx context.Context, apiKey string, objects []*RealEstateObject, source string) error {
 	var err error
+
 	for i, obj := range objects {
 		if e := obj.Validate(); e != nil {
 			err = errors.Join(err, fmt.Errorf("RealEstateObject at index %d has error: %w", i, e))
 		}
 	}
+
 	if err != nil {
 		return err
 	}
@@ -222,12 +234,17 @@ func PostRealEstateObjects(ctx context.Context, apiKey string, objects []*RealEs
 	if source != "" {
 		vals.Set("source", source)
 	}
+
 	response, err := postJSON(ctx, apiKey, "/masterdata/real-estate-objects", vals, objects)
 	if err != nil {
 		return err
 	}
-	if response.StatusCode != 200 {
+
+	defer func() { _ = response.Body.Close() }()
+
+	if response.StatusCode != http.StatusOK {
 		return fmt.Errorf("unexpected status code: %d", response.StatusCode)
 	}
+
 	return nil
 }

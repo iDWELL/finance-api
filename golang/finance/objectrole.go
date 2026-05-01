@@ -3,6 +3,7 @@ package finance
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 )
 
@@ -27,13 +28,17 @@ func PostObjectRoles(ctx context.Context, apiKey string, roles []*ObjectRole, so
 	if source != "" {
 		vals.Set("source", source)
 	}
+
 	response, err := postJSON(ctx, apiKey, "/masterdata/real-estate-object-roles", vals, roles)
 	if err != nil {
 		return err
 	}
+
 	defer func() { _ = response.Body.Close() }()
-	if response.StatusCode != 200 {
+
+	if response.StatusCode != http.StatusOK {
 		return fmt.Errorf("unexpected status code: %d", response.StatusCode)
 	}
+
 	return nil
 }

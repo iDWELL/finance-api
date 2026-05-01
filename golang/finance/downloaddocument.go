@@ -65,12 +65,14 @@ func DownloadDocumentPDF(ctx context.Context, apiKey string, docID uu.ID, opts .
 	if err != nil {
 		return fs.MemFile{}, err
 	}
+
 	req.Header.Set("Authorization", "Bearer "+apiKey)
 
-	resp, err := httpClientFromCtx(ctx).Do(req)
+	resp, err := httpClientFromCtx(ctx).Do(req) //nolint:gosec // intentional HTTP call to API URL from context
 	if err != nil {
 		return fs.MemFile{}, err
 	}
+
 	defer func() { _ = resp.Body.Close() }()
 
 	body, err := io.ReadAll(resp.Body)
