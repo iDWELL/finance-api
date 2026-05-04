@@ -106,9 +106,6 @@ type Partner struct {
 
 	// TaxExemptionExpiresAt is the expiry date of the vendor's exemption certificate.
 	TaxExemptionExpiresAt date.NullableDate
-
-	// Paragraph13bApplicable indicates if §13b UStG (Bauleistungserbringer) applies.
-	Paragraph13bApplicable nullable.Type[bool]
 }
 
 func (p *Partner) Validate() error {
@@ -290,8 +287,7 @@ func (p *Partner) Normalize(resetInvalid bool) []error {
 // and the partner_company_tax_exemption row should be upserted.
 func (p *Partner) NeedUpsertTaxExemption() bool {
 	return p.TaxExemptionRequired.IsNotNull() ||
-		p.TaxExemptionExpiresAt.IsNotNull() ||
-		p.Paragraph13bApplicable.IsNotNull()
+		p.TaxExemptionExpiresAt.IsNotNull()
 }
 
 func (p *Partner) String() string {
