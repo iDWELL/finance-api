@@ -21,6 +21,8 @@ type GLAccount struct {
 	Category nullable.TrimmedString // Higher level description of the account
 	ObjectNo account.NullableNumber // Optional real estate object number connected to the account
 	Active   bool                   // Active indicates if the account is currently in use; inactive accounts are excluded from suggestions
+
+	DefaultVATCode nullable.Type[int] // Default VAT code for the account
 }
 
 func (a *GLAccount) Validate() error {
