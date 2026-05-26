@@ -64,6 +64,7 @@ func CreateRealEstateObjectCostCenter(ctx context.Context, apiKey string, object
 	if err != nil {
 		return RealEstateObjectCostCenter{}, errors.Wrap(err, "failed to create request")
 	}
+
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+apiKey)
 
@@ -71,6 +72,7 @@ func CreateRealEstateObjectCostCenter(ctx context.Context, apiKey string, object
 	if err != nil {
 		return RealEstateObjectCostCenter{}, errors.Wrap(err, "failed to execute request")
 	}
+
 	defer func() { _ = resp.Body.Close() }()
 
 	respBody, err := io.ReadAll(resp.Body)
@@ -116,6 +118,7 @@ func DeleteRealEstateObjectCostCenter(ctx context.Context, apiKey string, id uu.
 	if err != nil {
 		return errors.Wrap(err, "failed to create request")
 	}
+
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+apiKey)
 
@@ -123,6 +126,7 @@ func DeleteRealEstateObjectCostCenter(ctx context.Context, apiKey string, id uu.
 	if err != nil {
 		return errors.Wrap(err, "failed to execute request")
 	}
+
 	defer func() { _ = resp.Body.Close() }()
 
 	respBody, err := io.ReadAll(resp.Body)
