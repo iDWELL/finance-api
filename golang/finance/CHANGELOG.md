@@ -10,7 +10,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `CreateRealEstateObjectCostCenter()` — single-record GraphQL mutation to associate a `ClientCompanyCostCenter` with a `RealEstateObject`
-- `DeleteRealEstateObjectCostCenter()` — single-record GraphQL mutation to remove an association by row ID
 - `RealEstateObjectCostCenter` struct
 
 ## [1.1.1] - 2026-05-06
