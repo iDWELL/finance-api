@@ -10,6 +10,7 @@ import (
 	"net/url"
 
 	"github.com/domonda/go-types/account"
+	"github.com/domonda/go-types/money"
 	"github.com/domonda/go-types/nullable"
 	"github.com/domonda/go-types/uu"
 )
@@ -23,6 +24,11 @@ type GLAccount struct {
 	Active   bool                   // Active indicates if the account is currently in use; inactive accounts are excluded from suggestions
 
 	DefaultVATCode nullable.Type[int64] // Default VAT code for the account
+
+	CostCenterHandling           GLAccountCostCenterHandling `json:"costCenterHandling,omitempty"`
+	ProjectHandling              GLAccountProjectHandling    `json:"projectHandling,omitempty"`
+	OrderHandling                GLAccountOrderHandling      `json:"orderHandling,omitempty"`
+	OrderHandlingAmountThreshold *money.Amount               `json:"orderHandlingAmountThreshold,omitempty"`
 }
 
 func (a *GLAccount) Validate() error {
