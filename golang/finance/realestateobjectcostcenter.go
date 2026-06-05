@@ -38,13 +38,13 @@ type createRealEstateObjectCostCenterResponse struct {
 func CreateRealEstateObjectCostCenter(ctx context.Context, apiKey string, objectInstanceID, clientCompanyCostCenterID uu.ID) (RealEstateObjectCostCenter, error) {
 	query := `mutation($objectInstanceId: UUID!, $clientCompanyCostCenterId: UUID!) {
   createRealEstateObjectCostCenter(input: {
-    objectInstanceId: $objectInstanceId,
-    clientCompanyCostCenterId: $clientCompanyCostCenterId
+    objectInstanceRowId: $objectInstanceId,
+    clientCompanyCostCenterRowId: $clientCompanyCostCenterId
   }) {
     realEstateObjectCostCenter {
       rowId
-      objectInstanceId
-      clientCompanyCostCenterId
+      objectInstanceRowId
+      clientCompanyCostCenterRowId
     }
   }
 }`
