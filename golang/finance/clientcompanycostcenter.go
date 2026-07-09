@@ -33,7 +33,7 @@ type createClientCompanyCostCenterResponse struct {
 // company scoped by apiKey via the `createClientCompanyCostCenter` mutation.
 // The currency defaults to EUR on the API side. Returns the new cost center.
 func CreateClientCompanyCostCenter(ctx context.Context, apiKey, number, description string) (ClientCompanyCostCenter, error) {
-	query := `mutation($number: String!, $description: String!) {
+	query := `mutation($number: NonEmptyText!, $description: NonEmptyText!) {
   createClientCompanyCostCenter(input: {
     number: $number,
     description: $description
