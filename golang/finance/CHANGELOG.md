@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.1] - 2026-07-09
+
+### Fixed
+
+- `CreateClientCompanyCostCenter()` — GraphQL variables `$number`/`$description` declared as `String!` while the API schema expects `NonEmptyText!`, so every call was rejected with a 400 before execution
+
 ## [1.4.0] - 2026-07-08
 
 ### Added
