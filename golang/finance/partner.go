@@ -106,6 +106,9 @@ type Partner struct {
 
 	// TaxExemptionExpiresAt is the expiry date of the vendor's exemption certificate.
 	TaxExemptionExpiresAt date.NullableDate
+
+	// Paragraph13bHandling is the vendor's §13b UStG reverse-charge handling.
+	Paragraph13bHandling PartnerParagraph13bHandling `json:"p13bHandling,omitempty"`
 }
 
 func (p *Partner) Validate() error {
@@ -287,7 +290,8 @@ func (p *Partner) Normalize(resetInvalid bool) []error {
 // and the partner_company_tax_exemption row should be upserted.
 func (p *Partner) NeedUpsertTaxExemption() bool {
 	return p.TaxExemptionRequired.IsNotNull() ||
-		p.TaxExemptionExpiresAt.IsNotNull()
+		p.TaxExemptionExpiresAt.IsNotNull() ||
+		p.Paragraph13bHandling != PartnerParagraph13bHandlingNotDefined
 }
 
 func (p *Partner) String() string {
