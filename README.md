@@ -1140,7 +1140,12 @@ const (
 	RealEstateObjectTypeSUB     RealEstateObjectType = "SUB"
 	RealEstateObjectTypeKREIS   RealEstateObjectType = "KREIS"
 	RealEstateObjectTypeMANDANT RealEstateObjectType = "MANDANT"
-	RealEstateObjectTypeMRG     RealEstateObjectType = "MRG" // Objekt unterliegt dem Mietrechtsgesetz (MRG)
+	RealEstateObjectTypeMRG     RealEstateObjectType = "MRG"  // Objekt unterliegt dem Mietrechtsgesetz (MRG)
+	RealEstateObjectTypeMHV     RealEstateObjectType = "MHV"  // Miethausverwaltung
+	RealEstateObjectTypeSEV     RealEstateObjectType = "SEV"  // Sondereigentumsverwaltung
+	RealEstateObjectTypeHBH     RealEstateObjectType = "HBH"  // Hauptbuchhaltung
+	RealEstateObjectTypeFIBU    RealEstateObjectType = "FIBU" // Finanzbuchhaltung
+	RealEstateObjectTypeVWO     RealEstateObjectType = "VWO"  // Verwaltungsobjekt
 )
 ```
 
