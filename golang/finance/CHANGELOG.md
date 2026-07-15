@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2026-07-15
+
+### Added
+
+- `UpdateClientCompanyCostCenter()` — single-record GraphQL mutation to update an existing `ClientCompanyCostCenter`'s number/description; currency is optional and left unchanged when omitted
+- `RealEstateObjectType` enum values `FIBU` (Finanzbuchhaltung / financial accounting object) and `VWO` (Verwaltungsobjekt / management-administration object)
+
 ## [1.5.0] - 2026-07-10
 
 ### Added
