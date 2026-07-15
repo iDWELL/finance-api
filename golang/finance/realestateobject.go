@@ -20,7 +20,7 @@ import (
 // Objects are used for property management, accounting segregation, and organizing
 // related transactions and documents. Each object is identified by its Number.
 type RealEstateObject struct {
-	// Type specifies the kind of real estate object (WEG, HI, SUB, KREIS, MANDANT, MRG, MHV, SEV)
+	// Type specifies the kind of real estate object (WEG, HI, SUB, KREIS, MANDANT, MRG, MHV, SEV, HBH, FIBU, VWO)
 	Type RealEstateObjectType
 
 	// Number is the unique identifier for this object (alphanumeric)
@@ -131,6 +131,14 @@ const (
 	// RealEstateObjectTypeHBH represents a general ledger / main bookkeeping object
 	// (Hauptbuchhaltung)
 	RealEstateObjectTypeHBH RealEstateObjectType = "HBH"
+
+	// RealEstateObjectTypeFIBU represents a financial accounting object
+	// (Finanzbuchhaltung)
+	RealEstateObjectTypeFIBU RealEstateObjectType = "FIBU"
+
+	// RealEstateObjectTypeVWO represents a management/administration object
+	// (Verwaltungsobjekt)
+	RealEstateObjectTypeVWO RealEstateObjectType = "VWO"
 )
 
 // Valid indicates if r is any of the valid values for RealEstateObjectType
@@ -145,7 +153,9 @@ func (r RealEstateObjectType) Valid() bool {
 		RealEstateObjectTypeMRG,
 		RealEstateObjectTypeMHV,
 		RealEstateObjectTypeSEV,
-		RealEstateObjectTypeHBH:
+		RealEstateObjectTypeHBH,
+		RealEstateObjectTypeFIBU,
+		RealEstateObjectTypeVWO:
 		return true
 	}
 
@@ -173,6 +183,8 @@ func (RealEstateObjectType) Enums() []RealEstateObjectType {
 		RealEstateObjectTypeMHV,
 		RealEstateObjectTypeSEV,
 		RealEstateObjectTypeHBH,
+		RealEstateObjectTypeFIBU,
+		RealEstateObjectTypeVWO,
 	}
 }
 
@@ -188,6 +200,8 @@ func (RealEstateObjectType) EnumStrings() []string {
 		"MHV",
 		"SEV",
 		"HBH",
+		"FIBU",
+		"VWO",
 	}
 }
 

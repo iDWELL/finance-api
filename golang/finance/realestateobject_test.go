@@ -21,6 +21,8 @@ func TestRealEstateObjectTypeValid(t *testing.T) {
 		"MANDANT valid":   {RealEstateObjectTypeMANDANT, true},
 		"MRG valid":       {RealEstateObjectTypeMRG, true},
 		"HBH valid":       {RealEstateObjectTypeHBH, true},
+		"FIBU valid":      {RealEstateObjectTypeFIBU, true},
+		"VWO valid":       {RealEstateObjectTypeVWO, true},
 		"empty invalid":   {"", false},
 		"lower invalid":   {"weg", false},
 		"unknown invalid": {"UNKNOWN", false},
@@ -39,6 +41,16 @@ func TestRealEstateObjectTypeValidate(t *testing.T) {
 	t.Run("valid type returns nil", func(t *testing.T) {
 		t.Parallel()
 		require.NoError(t, RealEstateObjectTypeWEG.Validate())
+	})
+
+	t.Run("FIBU valid type returns nil", func(t *testing.T) {
+		t.Parallel()
+		require.NoError(t, RealEstateObjectTypeFIBU.Validate())
+	})
+
+	t.Run("VWO valid type returns nil", func(t *testing.T) {
+		t.Parallel()
+		require.NoError(t, RealEstateObjectTypeVWO.Validate())
 	})
 
 	t.Run("invalid type returns error mentioning value", func(t *testing.T) {
@@ -61,6 +73,8 @@ func TestRealEstateObjectTypeIsVirtual(t *testing.T) {
 		"MANDANT is virtual": {RealEstateObjectTypeMANDANT, true},
 		"WEG not virtual":    {RealEstateObjectTypeWEG, false},
 		"HI not virtual":     {RealEstateObjectTypeHI, false},
+		"FIBU not virtual":   {RealEstateObjectTypeFIBU, false},
+		"VWO not virtual":    {RealEstateObjectTypeVWO, false},
 	}
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
@@ -74,4 +88,6 @@ func TestRealEstateObjectTypeString(t *testing.T) {
 	t.Parallel()
 	assert.Equal(t, "WEG", RealEstateObjectTypeWEG.String())
 	assert.Equal(t, "HBH", RealEstateObjectTypeHBH.String())
+	assert.Equal(t, "FIBU", RealEstateObjectTypeFIBU.String())
+	assert.Equal(t, "VWO", RealEstateObjectTypeVWO.String())
 }
