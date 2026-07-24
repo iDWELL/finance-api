@@ -18,13 +18,16 @@ func TestRevokeUserAccess_Success(t *testing.T) {
 		assert.Contains(t, r.Header.Get("Authorization"), "Bearer ")
 
 		var requests []UserAccessRevokeRequest
-		require.NoError(t, json.NewDecoder(r.Body).Decode(&requests))
-		require.Len(t, requests, 2)
+		if err := json.NewDecoder(r.Body).Decode(&requests); err != nil || len(requests) != 2 {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
 
 		results := []UserAccessRevokeResult{
 			{Email: requests[0].Email, Success: true},
 			{Email: requests[1].Email, Success: false, Error: "user not found"},
 		}
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		_ = json.NewEncoder(w).Encode(results)
