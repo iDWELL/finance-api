@@ -27,6 +27,7 @@ func TestObjectTenantOwnerRoleValid(t *testing.T) {
 			t.Parallel()
 
 			assert.Equal(t, tc.expected, tc.role.Valid())
+
 			if tc.expected {
 				require.NoError(t, tc.role.Validate())
 			} else {
@@ -44,6 +45,7 @@ func TestObjectTenantOwnerRoleEnums(t *testing.T) {
 
 	require.Len(t, roles, 3)
 	require.Len(t, strs, len(roles))
+
 	for i, role := range roles {
 		assert.Equal(t, strs[i], role.String())
 		assert.True(t, role.Valid())

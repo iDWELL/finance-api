@@ -32,6 +32,7 @@ func (r ObjectTenantOwnerRole) Valid() bool {
 		ObjectTenantOwnerRoleOwner:
 		return true
 	}
+
 	return false
 }
 
@@ -40,6 +41,7 @@ func (r ObjectTenantOwnerRole) Validate() error {
 	if !r.Valid() {
 		return fmt.Errorf("invalid value %#v for type finance.ObjectTenantOwnerRole", r)
 	}
+
 	return nil
 }
 

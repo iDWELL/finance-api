@@ -52,6 +52,7 @@ func (o *ObjectTenantOwner) Validate() error {
 	if o.Role == "" {
 		o.Role = ObjectTenantOwnerRoleUnspecified
 	}
+
 	if err = o.Role.Validate(); err != nil {
 		errs = append(errs, fmt.Errorf("ObjectTenantOwner.Role: %w", err))
 	}
