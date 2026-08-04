@@ -68,6 +68,27 @@ func TestObjectTenantOwnerValidate(t *testing.T) {
 			},
 			expectedErr: "ObjectTenantOwner.Owner",
 		},
+		"explicit Role": {
+			build: func(t *testing.T) *ObjectTenantOwner {
+				t.Helper()
+
+				o := validObjectTenantOwner(t)
+				o.Role = ObjectTenantOwnerRoleTenant
+
+				return o
+			},
+		},
+		"unknown Role": {
+			build: func(t *testing.T) *ObjectTenantOwner {
+				t.Helper()
+
+				o := validObjectTenantOwner(t)
+				o.Role = "VERWALTER"
+
+				return o
+			},
+			expectedErr: "ObjectTenantOwner.Role",
+		},
 	}
 
 	for name, tc := range tests {
@@ -83,6 +104,18 @@ func TestObjectTenantOwnerValidate(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestObjectTenantOwnerValidateNormalizesEmptyRole covers backwards compatibility:
+// a payload written before Role existed carries no role and must stay valid.
+func TestObjectTenantOwnerValidateNormalizesEmptyRole(t *testing.T) {
+	t.Parallel()
+
+	o := validObjectTenantOwner(t)
+	o.Role = ""
+
+	require.NoError(t, o.Validate())
+	assert.Equal(t, ObjectTenantOwnerRoleUnspecified, o.Role)
 }
 
 func TestPostObjectTenantOwners_ValidationError(t *testing.T) {
