@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] - 2026-08-04
+
+### Added
+
+- `ObjectTenantOwnerRole` enum with values `UNSPECIFIED`, `TENANT` and `OWNER`
+- `ObjectTenantOwner.Role` — the role of the person on the unit. A tenant/owner record identifies one person, on one unit, in one role, because the same person can be the tenant of one unit and the owner of another, or both on the same unit. Sources that list tenants and owners together without telling them apart leave the field empty, which `Validate()` normalizes to `UNSPECIFIED`, so payloads written before the field existed stay valid
+
 ## [1.7.0] - 2026-07-24
 
 ### Added

@@ -11,6 +11,13 @@ import (
 	"github.com/domonda/go-types/notnull"
 )
 
+// ObjectTenantOwner is one person on one unit of a real estate object.
+//
+// TenantOwnerID, TenantOwnerNo and Owner all describe that single person -
+// TenantOwner is short for tenant-or-owner, it is not a tenant-specific field, and
+// Owner holds the person's name whatever their role. OwnerLinkNo is not a person at
+// all but the contract they hold on the unit. Role says which kind of person the row
+// is about.
 type ObjectTenantOwner struct {
 	ObjectNo      account.Number
 	TenantOwnerID int64
@@ -19,8 +26,12 @@ type ObjectTenantOwner struct {
 	Unit          notnull.TrimmedString
 	OwnerLinkNo   int64
 	Owner         notnull.TrimmedString
+	Role          ObjectTenantOwnerRole
 }
 
+// Validate reports whether the record can be imported. An empty Role is normalized
+// to ObjectTenantOwnerRoleUnspecified rather than rejected, so payloads written
+// before the field existed stay valid.
 func (o *ObjectTenantOwner) Validate() error {
 	var (
 		err  error
@@ -36,6 +47,14 @@ func (o *ObjectTenantOwner) Validate() error {
 
 	if o.Owner.IsEmpty() {
 		errs = append(errs, errors.New("empty ObjectTenantOwner.Owner"))
+	}
+
+	if o.Role == "" {
+		o.Role = ObjectTenantOwnerRoleUnspecified
+	}
+
+	if err = o.Role.Validate(); err != nil {
+		errs = append(errs, fmt.Errorf("ObjectTenantOwner.Role: %w", err))
 	}
 
 	return errors.Join(errs...)
