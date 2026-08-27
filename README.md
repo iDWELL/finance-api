@@ -1126,8 +1126,11 @@ type RealEstateObject struct {
 	Country              country.Code
 	BankAccounts         []bank.Account
 	Active               bool
+	ManagementEnd        date.NullableDate
 }
 ```
+
+`ManagementEnd` is independent of `Active`: a past date does not mark the object inactive.
 
 `RealEstateObjectType` is an enum with the following string values:
 

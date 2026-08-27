@@ -12,6 +12,7 @@ import (
 	"github.com/domonda/go-types/account"
 	"github.com/domonda/go-types/bank"
 	"github.com/domonda/go-types/country"
+	"github.com/domonda/go-types/date"
 	"github.com/domonda/go-types/notnull"
 	"github.com/domonda/go-types/nullable"
 )
@@ -55,6 +56,10 @@ type RealEstateObject struct {
 
 	// Active indicates if this object is currently active
 	Active bool
+
+	// ManagementEnd is the end of the management contract (Verwaltungsende).
+	// Independent of Active: a past date does not mean inactive.
+	ManagementEnd date.NullableDate
 }
 
 func (o *RealEstateObject) Validate() error {

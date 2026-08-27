@@ -8,6 +8,7 @@ import (
 	"github.com/domonda/go-types/account"
 	"github.com/domonda/go-types/bank"
 	"github.com/domonda/go-types/country"
+	"github.com/domonda/go-types/date"
 	"github.com/domonda/go-types/notnull"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -124,6 +125,31 @@ func TestRealEstateObjectValidate(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 			}
+		})
+	}
+}
+
+// Guards ManagementEnd staying independent of Active if Validate ever grows rules.
+func TestRealEstateObjectManagementEndDoesNotAffectActive(t *testing.T) {
+	t.Parallel()
+
+	tests := map[string]date.NullableDate{
+		"null date":   date.NullableDate(""),
+		"past date":   date.NullableDate("2020-01-31"),
+		"future date": date.NullableDate("2099-12-31"),
+	}
+
+	for name, managementEnd := range tests {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			o := validRealEstateObject(t)
+			o.Active = true
+			o.ManagementEnd = managementEnd
+
+			require.NoError(t, o.Validate())
+			assert.True(t, o.Active, "Validate must not derive Active from ManagementEnd")
+			assert.Equal(t, managementEnd, o.ManagementEnd, "Validate must not rewrite ManagementEnd")
 		})
 	}
 }
