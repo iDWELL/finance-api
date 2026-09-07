@@ -1116,21 +1116,31 @@ The request body is a JSON array of objects matching the struct:
 type RealEstateObject struct {
 	Type                 RealEstateObjectType
 	Number               account.Number
-	AccountingArea       account.NullableNumber
-	UserAccount          account.NullableNumber
-	Description          nullable.TrimmedString
+	AccountingArea       account.NullableNumber `json:",omitzero"`
+	UserAccount          account.NullableNumber `json:",omitzero"`
+	Description          nullable.TrimmedString `json:",omitzero"`
 	StreetAddress        notnull.TrimmedString
-	AlternativeAddresses nullable.StringArray
-	ZipCode              nullable.TrimmedString
-	City                 nullable.TrimmedString
+	AlternativeAddresses nullable.StringArray   `json:",omitzero"`
+	ZipCode              nullable.TrimmedString `json:",omitzero"`
+	City                 nullable.TrimmedString `json:",omitzero"`
 	Country              country.Code
-	BankAccounts         []bank.Account
+	BankAccounts         []bank.Account         `json:",omitzero"`
 	Active               bool
-	ManagementEnd        date.NullableDate
+	ManagementEnd        date.NullableDate      `json:",omitzero"`
 }
 ```
 
 `ManagementEnd` is independent of `Active`: a past date does not mark the object inactive.
+
+An optional field that is left out of a posted object keeps the value it has in
+iDWELL Finance, while an optional field that is sent as `null` clears that value.
+Send only the fields your system owns: an object of the same `Number` is usually
+maintained by more than one source, and posting `null` for a field owned by
+another source deletes its data. The optional fields are `AccountingArea`,
+`UserAccount`, `Description`, `AlternativeAddresses`, `ZipCode`, `City`,
+`BankAccounts` and `ManagementEnd`; the remaining fields are required and are
+always written. Senders that use the Go struct get this for free, because the
+`omitzero` tags leave every unset optional field out of the JSON.
 
 `RealEstateObjectType` is an enum with the following string values:
 
