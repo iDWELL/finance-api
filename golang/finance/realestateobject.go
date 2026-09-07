@@ -4,10 +4,12 @@ package finance
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/domonda/go-types/account"
 	"github.com/domonda/go-types/bank"
@@ -20,6 +22,11 @@ import (
 // RealEstateObject represents a real estate property managed in the system.
 // Objects are used for property management, accounting segregation, and organizing
 // related transactions and documents. Each object is identified by its Number.
+//
+// The optional fields are omitted from the JSON of an object that leaves them
+// at their zero value, because a sender that does not own a field must be able
+// to leave it out of the payload instead of clearing it for everyone else.
+// See UnsentFields.
 type RealEstateObject struct {
 	// Type specifies the kind of real estate object (WEG, HI, SUB, KREIS, MANDANT, MRG, MHV, SEV, HBH, FIBU, VWO)
 	Type RealEstateObjectType
@@ -28,38 +35,112 @@ type RealEstateObject struct {
 	Number account.Number
 
 	// AccountingArea is an optional accounting segregation identifier
-	AccountingArea account.NullableNumber
+	AccountingArea account.NullableNumber `json:",omitzero"`
 
 	// UserAccount is an optional user account number associated with this object
-	UserAccount account.NullableNumber
+	UserAccount account.NullableNumber `json:",omitzero"`
 
 	// Description provides additional details about the property
-	Description nullable.TrimmedString
+	Description nullable.TrimmedString `json:",omitzero"`
 
 	// StreetAddress is the primary street address (required)
 	StreetAddress notnull.TrimmedString
 
 	// AlternativeAddresses contains additional addresses for the same property
-	AlternativeAddresses nullable.StringArray
+	AlternativeAddresses nullable.StringArray `json:",omitzero"`
 
 	// ZipCode is the postal/ZIP code
-	ZipCode nullable.TrimmedString
+	ZipCode nullable.TrimmedString `json:",omitzero"`
 
 	// City is the city name
-	City nullable.TrimmedString
+	City nullable.TrimmedString `json:",omitzero"`
 
 	// Country is the ISO 3166-1 alpha-2 country code (e.g., "DE", "AT")
 	Country country.Code
 
 	// BankAccounts are payment bank accounts associated with this object
-	BankAccounts []bank.Account
+	BankAccounts []bank.Account `json:",omitzero"`
 
 	// Active indicates if this object is currently active
 	Active bool
 
 	// ManagementEnd is the end of the management contract (Verwaltungsende).
 	// Independent of Active: a past date does not mean inactive.
-	ManagementEnd date.NullableDate
+	ManagementEnd date.NullableDate `json:",omitzero"`
+
+	// sentFields holds the lower case JSON field names of the object
+	// that UnmarshalJSON parsed, or nil for an object that was not
+	// unmarshalled from JSON. See UnsentFields.
+	sentFields map[string]bool
+}
+
+// realEstateObjectOptionalFields are the names of the optional
+// RealEstateObject fields in declaration order.
+var realEstateObjectOptionalFields = []string{
+	"AccountingArea",
+	"UserAccount",
+	"Description",
+	"AlternativeAddresses",
+	"ZipCode",
+	"City",
+	"BankAccounts",
+	"ManagementEnd",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+//
+// It remembers which fields the JSON object contained so that UnsentFields
+// can tell a field that was left out of the payload from one that was sent
+// as null.
+func (o *RealEstateObject) UnmarshalJSON(jsonObject []byte) error {
+	type withoutMethods RealEstateObject // Prevents endless recursion
+
+	var object withoutMethods
+	if err := json.Unmarshal(jsonObject, &object); err != nil {
+		return err
+	}
+
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(jsonObject, &fields); err != nil {
+		return err
+	}
+
+	*o = RealEstateObject(object)
+	o.sentFields = make(map[string]bool, len(fields))
+
+	for field := range fields {
+		// encoding/json matches JSON field names case insensitively
+		o.sentFields[strings.ToLower(field)] = true
+	}
+
+	return nil
+}
+
+// UnsentFields returns the names of the optional fields that were not present
+// in the JSON object this RealEstateObject was unmarshalled from. The result
+// is nil for an object that was not unmarshalled from JSON, because every
+// field of an object that was assembled in Go is authoritative.
+//
+// The receiver of a payload has to keep the current value of an unsent field
+// instead of overwriting it with the zero value: an unsent field means that
+// the payload has nothing to say about that field, while a field sent as null
+// means that the value has to be cleared. Without the distinction a sender
+// that only knows some of the fields of an object, like a CRM that has no
+// accounting data, deletes the fields owned by another sender on every sync.
+func (o *RealEstateObject) UnsentFields() []string {
+	if o.sentFields == nil {
+		return nil
+	}
+
+	var unsent []string
+
+	for _, field := range realEstateObjectOptionalFields {
+		if !o.sentFields[strings.ToLower(field)] {
+			unsent = append(unsent, field)
+		}
+	}
+
+	return unsent
 }
 
 func (o *RealEstateObject) Validate() error {

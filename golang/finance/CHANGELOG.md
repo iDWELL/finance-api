@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.0] - 2026-09-07
+
+### Added
+
+- `RealEstateObject.UnsentFields()` — the optional fields that were not present in the JSON object the value was unmarshalled from, so that the receiver can keep their current value instead of clearing them. Returns nil for a value that was assembled in Go, whose fields are all authoritative
+
+### Changed
+
+- The optional `RealEstateObject` fields (`AccountingArea`, `UserAccount`, `Description`, `AlternativeAddresses`, `ZipCode`, `City`, `BankAccounts`, `ManagementEnd`) are omitted from the marshalled JSON while they are at their zero value, instead of being sent as `null`. A sender that does not own a field now leaves it out of the payload, where sending `null` used to clear the value written by the sender that does own it
+
 ## [1.9.0] - 2026-08-27
 
 ### Added
