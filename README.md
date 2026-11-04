@@ -37,6 +37,11 @@ The iDWELL Finance API is a comprehensive platform for managing financial docume
      * [POST Real Estate Object Roles](#post-real-estate-object-roles)
      * [POST Custom Object Class Instances](#post-custom-object-class-instances)
    * [Get document's custom fields](#get-documents-custom-fields)
+   * [Document webhooks](#document-webhooks)
+     * [Manage webhook subscriptions](#manage-webhook-subscriptions)
+     * [Webhook events](#webhook-events)
+     * [Verify the webhook signature](#verify-the-webhook-signature)
+     * [Delivery and retries](#delivery-and-retries)
 4. [**Go SDK**](#go-sdk)
    * [Installation](#installation)
    * [Usage examples](#usage-examples)
@@ -1266,6 +1271,148 @@ Response:
   }
 ]
 ```
+
+### Document webhooks
+
+A client company can subscribe an HTTPS endpoint to events about its DMS documents.
+Events are sent for documents in a workflow of type `DOCUMENT`; invoices send no events.
+An event only tells what happened to which document, it contains no file content.
+Load the current document data with the [GraphQL API](#graphql-api)
+and the file with the [Document PDF download](#document-pdf-download).
+
+#### Manage webhook subscriptions
+
+Create a subscription:
+
+```sh
+curl -X POST \
+  -H "Authorization: Bearer ${IDWELL_API_KEY}" \
+  -H "Content-Type: application/json" \
+  --data '{"url": "https://example.com/idwell/webhook"}' \
+  https://idwell.ai/api/public/webhook-subscriptions
+```
+
+Response `201 Created`:
+
+```json
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "url": "https://example.com/idwell/webhook",
+  "createdAt": "2026-11-04T10:00:00Z",
+  "secret": "whsec_..."
+}
+```
+
+The `secret` is used to [verify the webhook signature](#verify-the-webhook-signature).
+It is returned only in this response, store it right away.
+
+The URL must be an absolute `https` URL without credentials.
+An invalid URL is answered with `400 Bad Request`,
+a second subscription for the same URL with `409 Conflict`.
+
+List the subscriptions of the client company (the secret is not included):
+
+```sh
+curl \
+  -H "Authorization: Bearer ${IDWELL_API_KEY}" \
+  https://idwell.ai/api/public/webhook-subscriptions
+```
+
+Delete a subscription, answered with `204 No Content`, or `404 Not Found` for an unknown ID:
+
+```sh
+curl -X DELETE \
+  -H "Authorization: Bearer ${IDWELL_API_KEY}" \
+  https://idwell.ai/api/public/webhook-subscriptions/00000000-0000-0000-0000-000000000000
+```
+
+Events are sent for changes made after a subscription was created.
+Existing documents are not sent when a subscription is created.
+
+#### Webhook events
+
+| Event type | Sent when |
+| --- | --- |
+| `document.categorized` | A document is available with its category for the first time, or again after it was restored |
+| `document.category_changed` | The category of a document changed |
+| `document.reassigned` | The real estate object or the unit of a document changed |
+| `document.deleted` | A document was deleted, including the originals of a page split or merge, or it left the `DOCUMENT` workflow |
+
+A page split or merge sends `document.deleted` for the original document
+and `document.categorized` for every new document.
+Changes made while a document is still being processed are sent once its processing is finished.
+
+Every event is a `POST` request with a JSON body:
+
+```json
+{
+  "id": "6f1c1b6e-1f43-4a4e-9d55-3f0f7d6b1a20",
+  "type": "document.category_changed",
+  "occurredAt": "2026-11-04T10:00:00Z",
+  "clientCompanyRowId": "00000000-0000-0000-0000-000000000000",
+  "document": {
+    "rowId": "00000000-0000-0000-0000-000000000000",
+    "categoryRowId": "00000000-0000-0000-0000-000000000000",
+    "workflowType": "DOCUMENT"
+  }
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `id` | ID of the event, the same for every retry of it |
+| `type` | One of the event types above |
+| `occurredAt` | Time the change was detected (RFC 3339, UTC) |
+| `clientCompanyRowId` | ID of the client company the document belongs to |
+| `document.rowId` | ID of the document, the `rowId` in the GraphQL API |
+| `document.categoryRowId` | ID of the document category; for `document.deleted` the last known category |
+| `document.workflowType` | Workflow type of the document, `DOCUMENT` |
+
+Events are not guaranteed to arrive in order.
+Use `occurredAt` to ignore an event that is older than the last one processed for the same document,
+and use `id` to ignore an event that was already processed.
+Handle `document.categorized` and `document.category_changed` alike as "the document is in this category now",
+because a document a subscriber did not know before can also arrive with `document.category_changed`.
+
+#### Verify the webhook signature
+
+Requests are signed according to the [Standard Webhooks](https://www.standardwebhooks.com/) specification,
+so its libraries can be used to verify them. Every request has these headers:
+
+| Header | Description |
+| --- | --- |
+| `webhook-id` | ID of the event, equal to `id` in the body |
+| `webhook-timestamp` | Time of sending in Unix seconds |
+| `webhook-signature` | `v1,` followed by the Base64 encoded HMAC-SHA256 signature |
+
+The signature is calculated over `{webhook-id}.{webhook-timestamp}.{raw request body}`
+with the Base64 decoded part of the secret after the `whsec_` prefix as key.
+Verify it against the raw body before parsing the JSON,
+and reject requests with a timestamp too far from the current time.
+
+Example in Go:
+
+```go
+func verify(secret string, header http.Header, body []byte) bool {
+	key, err := base64.StdEncoding.DecodeString(strings.TrimPrefix(secret, "whsec_"))
+	if err != nil {
+		return false
+	}
+	mac := hmac.New(sha256.New, key)
+	mac.Write([]byte(header.Get("webhook-id") + "." + header.Get("webhook-timestamp") + "."))
+	mac.Write(body)
+	expected := "v1," + base64.StdEncoding.EncodeToString(mac.Sum(nil))
+	return hmac.Equal([]byte(expected), []byte(header.Get("webhook-signature")))
+}
+```
+
+#### Delivery and retries
+
+A delivery succeeds when the endpoint answers with a `2xx` status within 10 seconds.
+Redirects are not followed.
+A failed delivery is retried with exponential backoff, starting after 30 seconds
+and growing to at most 2 hours between attempts, for up to 24 hours after the event.
+After that the delivery is marked as failed and is not retried.
 
 ## Go SDK
 
